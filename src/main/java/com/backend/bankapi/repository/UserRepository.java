@@ -1,0 +1,35 @@
+package com.backend.bankapi.repository;
+
+import com.backend.bankapi.domain.ModifyInformation;
+import com.backend.bankapi.domain.User;
+import com.backend.bankapi.exception.BadRequestException;
+import com.backend.bankapi.exception.ConflictException;
+import com.backend.bankapi.exception.ResourceNotFoundException;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.sql.Timestamp;
+import java.util.Optional;
+
+@Repository
+@Transactional(readOnly = true)
+public interface UserRepository extends JpaRepository<User, Long> {
+
+    Optional<User> findBySsn(String ssn) throws ResourceNotFoundException;
+
+    Boolean existsBySsn(String ssn) throws ConflictException;
+
+    Boolean existsByEmail(String email) throws ConflictException;
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE User u " +
+            "SET u.firstName = ?2, u.lastName = ?3, u.email = ?4, u.address = ?5, u.mobilePhoneNumber = ?6, " +
+            "u.modInfId.lastModifiedBy = ?7, u.modInfId.lastModifiedDate = ?8 WHERE u.ssn = ?1")
+    void update(String ssn, String firstName, String lastName, String email, String address,
+                String mobilePhoneNumber, String lastModifiedBy, Timestamp lastModifiedDate) throws BadRequestException;
+
+}
