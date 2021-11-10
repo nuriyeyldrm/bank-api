@@ -11,12 +11,14 @@ import org.springframework.data.annotation.LastModifiedDate;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Date;
+import java.util.Set;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "modifyInf")
+@Table(name = "modify_inf")
 public class ModifyInformation implements Serializable {
 
     @Id
@@ -24,7 +26,7 @@ public class ModifyInformation implements Serializable {
     private Long id;
 
     @CreatedBy
-    @Column(length = 50, updatable = false)
+    @Column(length = 250, updatable = false)
     private String createdBy;
 
     @CreatedDate
@@ -32,7 +34,7 @@ public class ModifyInformation implements Serializable {
     private Timestamp createdDate;
 
     @LastModifiedBy
-    @Column(length = 50)
+    @Column(length = 250)
     private String lastModifiedBy;
 
     @LastModifiedDate
@@ -46,8 +48,19 @@ public class ModifyInformation implements Serializable {
         this.lastModifiedDate = lastModifiedDate;
     }
 
-    public ModifyInformation(String lastModifiedBy, Timestamp lastModifiedDate) {
+    public ModifyInformation(Long id, String lastModifiedBy, Timestamp lastModifiedDate) {
+        this.id = id;
         this.lastModifiedBy = lastModifiedBy;
         this.lastModifiedDate = lastModifiedDate;
+    }
+
+    public String setModifiedBy(String firstName, String lastName, Set<Role> roles) {
+        return firstName.toLowerCase() + "_" + lastName.toLowerCase() + "_" + roles;
+    }
+
+    public Timestamp setDate() {
+        Date date= new Date();
+        long time = date.getTime();
+        return lastModifiedDate = new Timestamp(time);
     }
 }

@@ -4,6 +4,7 @@ import com.backend.bankapi.domain.enumeration.UserRole;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 
@@ -21,4 +22,9 @@ public class Role {
     @Enumerated(EnumType.STRING)
     @Column(length = 30)
     private UserRole name;
+
+    @Override
+    public String toString() {
+        return "" + name;
+    }
 }

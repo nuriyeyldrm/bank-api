@@ -96,9 +96,11 @@ public class UserController {
 
     @PutMapping("/admin/{id}/auth")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Map<String, Boolean>> updateUserAuth(@PathVariable Long id,
+    public ResponseEntity<Map<String, Boolean>> updateUserAuth(HttpServletRequest request,
+                                                               @PathVariable Long id,
                                                                @Valid @RequestBody AdminDao adminDao) {
-        userService.updateUserAuth(id, adminDao);
+        String adminSsn = (String) request.getAttribute("ssn");
+        userService.updateUserAuth(adminSsn, id, adminDao);
         Map<String, Boolean> map = new HashMap<>();
         map.put("success", true);
         return new ResponseEntity<>(map, HttpStatus.OK);

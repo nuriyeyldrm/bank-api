@@ -54,15 +54,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.cors().and().csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests().antMatchers("/user/**", "/admin/**").permitAll()
+                .authorizeRequests().antMatchers("/bank/api/user/**", "/bank/api/admin/**").permitAll()
                 .anyRequest().authenticated();
 
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 
     @Override
-    public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers("/swagger-ui.html", "/v2/api-docs",
+    public void configure(WebSecurity web) {
+        web.ignoring().antMatchers("/user/login", "/user/register", "/swagger-ui.html", "/v2/api-docs",
                 "/configuration/**", "/swagger-resources/**",  "/webjars/**", "/api-docs/**");
     }
 }

@@ -33,6 +33,8 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final ModifyInformation modifyInformation = new ModifyInformation();
+
     private final static String USER_NOT_FOUND_MSG = "user with id %d not found";
 
     private final static String SSN_NOT_FOUND_MSG = "user with ssn %s not found";
@@ -51,7 +53,7 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
         return new UserDao(ssn, user.getFirstName(), user.getLastName(), user.getEmail(), user.getAddress(),
-                user.getMobilePhoneNumber(), user.getModInfId());
+                user.getMobilePhoneNumber());
     }
 
     public void register(User user) throws BadRequestException {
@@ -74,15 +76,12 @@ public class UserService {
 
         user.setRoles(roles);
 
-        String createdBy = user.getFirstName().toLowerCase() + "_" + user.getLastName().toLowerCase() +
-                "_" + user.getRoles();
-        Date date= new Date();
-        long time = date.getTime();
-        Timestamp createdDate = new Timestamp(time);
-        Timestamp lastModifiedDate = new Timestamp(time);
+        String createdBy = modifyInformation.setModifiedBy(user.getFirstName(), user.getLastName(), user.getRoles());
+
+        Timestamp createdDate = modifyInformation.setDate();
 
         ModifyInformation modifyInformation = new ModifyInformation(createdBy, createdDate,
-                createdBy, lastModifiedDate);
+                createdBy, createdDate);
 
         modifyInfRepository.save(modifyInformation);
 
@@ -111,24 +110,25 @@ public class UserService {
             throw new ConflictException("Error: Email is already in use!");
         }
 
-        String lastModifiedBy = userDao.getFirstName().toLowerCase() + "_" + userDao.getLastName().toLowerCase() +
-                "_" + userDetails.get().getRoles();
-        Date date= new Date();
-        long time = date.getTime();
-        Timestamp lastModifiedDate = new Timestamp(time);
+        String lastModifiedBy = modifyInformation.setModifiedBy(userDao.getFirstName(), userDao.getLastName(),
+                userDetails.get().getRoles());
 
-        ModifyInformation modifyInformation = new ModifyInformation(lastModifiedBy, lastModifiedDate);
+        Timestamp lastModifiedDate = modifyInformation.setDate();
+
+        ModifyInformation modifyInformation = new ModifyInformation(userDetails.get().getModInfId().getId(),
+                lastModifiedBy, lastModifiedDate);
 
         modifyInfRepository.save(modifyInformation);
 
         userRepository.update(ssn, userDao.getFirstName(), userDao.getLastName(), userDao.getEmail(),
-                userDao.getAddress(), userDao.getMobilePhoneNumber(), lastModifiedBy, lastModifiedDate);
+                userDao.getAddress(), userDao.getMobilePhoneNumber());
     }
 
-    public void updateUserAuth(Long id, AdminDao adminDao) throws BadRequestException {
+    public void updateUserAuth(String adminSsn, Long id, AdminDao adminDao) throws BadRequestException {
 
         boolean emailExists = userRepository.existsByEmail(adminDao.getEmail());
         Optional<User> userDetails = userRepository.findById(id);
+        Optional<User> adminDetails = userRepository.findBySsn(adminSsn);
 
         if (emailExists && !adminDao.getEmail().equals(userDetails.get().getEmail())){
             throw new ConflictException("Error: Email is already in use!");
@@ -141,19 +141,19 @@ public class UserService {
         Set<String> userRoles = adminDao.getRole();
         Set<Role> roles = addRoles(userRoles);
 
-        String lastModifiedBy = adminDao.getFirstName().toLowerCase() + "_" + adminDao.getLastName().toLowerCase() +
-                "_" + userDetails.get().getRoles();
-        Date date= new Date();
-        long time = date.getTime();
-        Timestamp lastModifiedDate = new Timestamp(time);
+        String lastModifiedBy = modifyInformation.setModifiedBy(adminDetails.get().getFirstName(),
+                adminDetails.get().getLastName(), adminDetails.get().getRoles());
 
-        ModifyInformation modifyInformation = new ModifyInformation(lastModifiedBy, lastModifiedDate);
+        Timestamp lastModifiedDate = modifyInformation.setDate();
+
+        ModifyInformation modifyInformation = new ModifyInformation(userDetails.get().getModInfId().getId(),
+                lastModifiedBy, lastModifiedDate);
 
         modifyInfRepository.save(modifyInformation);
 
-        User user = new User(id, adminDao.getFirstName(), adminDao.getLastName(), adminDao.getEmail(),
-                adminDao.getPassword(), adminDao.getAddress(), adminDao.getMobilePhoneNumber(),
-                modifyInformation, roles);
+        User user = new User(id, userDetails.get().getSsn(), adminDao.getFirstName(), adminDao.getLastName(),
+                adminDao.getEmail(), adminDao.getPassword(), adminDao.getAddress(), adminDao.getMobilePhoneNumber(),
+                userDetails.get().getModInfId(), roles);
 
         userRepository.save(user);
     }
