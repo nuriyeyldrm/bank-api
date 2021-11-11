@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Optional;
 
 @AllArgsConstructor
 @Service
@@ -33,19 +34,35 @@ public class AccountService {
         return accountRepository.findAll();
     }
 
-    public Account findById(Long id) throws ResourceNotFoundException {
+    public Account findByIdAuth(Long id) throws ResourceNotFoundException {
         return accountRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, id)));
     }
 
-    public AccountDao findBySsn(String ssn) throws ResourceNotFoundException {
+    public AccountDao findAllBySsn(String ssn) throws ResourceNotFoundException {
         User user = userRepository.findBySsn(ssn)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
-        Account account = accountRepository.getById(user.getId());
+        Account account = accountRepository.findByUserId(user)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
         return new AccountDao(account.getDescription(), account.getBalance(), account.getAccountType().toString(),
-                account.getAccountStatusType().toString());
+                account.getAccountStatusType().toString(), account.getAccModInfId().getCreatedDate(),
+                account.getAccModInfId().getClosedDate());
+    }
+
+    public AccountDao findBySsnId(Long id, String ssn) throws ResourceNotFoundException {
+        User user = userRepository.findBySsn(ssn)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
+
+        accountRepository.findByUserId(user)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
+
+        Optional<Account> account = accountRepository.findById(id);
+
+        return new AccountDao(account.get().getDescription(), account.get().getBalance(),
+                account.get().getAccountType().toString(), account.get().getAccountStatusType().toString(),
+                account.get().getAccModInfId().getCreatedDate(), account.get().getAccModInfId().getClosedDate());
     }
 
     public void add(String ssn, Account account) throws BadRequestException {
@@ -64,6 +81,31 @@ public class AccountService {
 
         account.setAccModInfId(accountModifyInformation);
         account.setUserId(user);
+
+        accountRepository.save(account);
+    }
+
+    public void updateAccount(String ssn, Long id, Account account) throws BadRequestException {
+
+        User user = userRepository.findBySsn(ssn)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
+
+        Account acc = accountRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, id)));
+
+        String lastModifiedBy = accountModifyInformation.setModifiedBy(user.getFirstName(), user.getLastName(),
+                user.getRoles());
+
+        Timestamp lastModifiedDate = accountModifyInformation.setDate();
+
+        AccountModifyInformation accountModifyInformation = new AccountModifyInformation(acc.getAccModInfId().getId(),
+                lastModifiedBy, lastModifiedDate);
+
+        accModifyInformationRepository.save(accountModifyInformation);
+
+        account.setUserId(user);
+        account.setId(id);
+        account.setAccModInfId(accountModifyInformation);
 
         accountRepository.save(account);
     }

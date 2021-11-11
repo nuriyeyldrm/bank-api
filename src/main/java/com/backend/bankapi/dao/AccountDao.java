@@ -12,6 +12,8 @@ import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.sql.Timestamp;
+import java.util.Date;
 
 @Setter
 @Getter
@@ -31,4 +33,8 @@ public class AccountDao {
 
     @NotNull(message = "Please choose account status type")
     private String accountStatusType;
+
+    private Timestamp createdDate;
+
+    private Timestamp closedDate;
 }
