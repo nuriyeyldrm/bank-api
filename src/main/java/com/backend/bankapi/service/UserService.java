@@ -187,14 +187,23 @@ public class UserService {
             roles.add(userRole);
         } else {
             userRoles.forEach(role -> {
-                if ("Administrator".equals(role)) {
-                    Role adminRole = roleRepository.findByName(UserRole.ROLE_ADMIN)
-                            .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                    roles.add(adminRole);
-                } else {
-                    Role userRole = roleRepository.findByName(UserRole.ROLE_USER)
-                            .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                    roles.add(userRole);
+                switch (role) {
+                    case "Manager":
+                        Role adminRole = roleRepository.findByName(UserRole.ROLE_ADMIN)
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(adminRole);
+
+                        break;
+                    case "Employee":
+                        Role customerServiceRole = roleRepository.findByName(UserRole.ROLE_EMPLOYEE)
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(customerServiceRole);
+
+                        break;
+                    default:
+                        Role userRole = roleRepository.findByName(UserRole.ROLE_USER)
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(userRole);
                 }
             });
         }

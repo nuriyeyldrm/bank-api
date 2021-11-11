@@ -1,9 +1,9 @@
 package com.backend.bankapi.repository;
 
-import com.backend.bankapi.domain.ModifyInformation;
+import com.backend.bankapi.domain.AccountModifyInformation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ModifyInformationRepository extends JpaRepository<ModifyInformation, Long> {
+public interface AccModifyInformationRepository extends JpaRepository<AccountModifyInformation, Long> {
 }
