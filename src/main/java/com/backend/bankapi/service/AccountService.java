@@ -47,8 +47,7 @@ public class AccountService {
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
         return new AccountDao(account.getDescription(), account.getBalance(), account.getAccountType().toString(),
-                account.getAccountStatusType().toString(), account.getAccModInfId().getCreatedDate(),
-                account.getAccModInfId().getClosedDate());
+                account.getAccountStatusType().toString(), account.getAccModInfId().getCreatedDate());
     }
 
     public AccountDao findBySsnId(Long id, String ssn) throws ResourceNotFoundException {
@@ -62,7 +61,7 @@ public class AccountService {
 
         return new AccountDao(account.get().getDescription(), account.get().getBalance(),
                 account.get().getAccountType().toString(), account.get().getAccountStatusType().toString(),
-                account.get().getAccModInfId().getCreatedDate(), account.get().getAccModInfId().getClosedDate());
+                account.get().getAccModInfId().getCreatedDate());
     }
 
     public void add(String ssn, Account account) throws BadRequestException {

@@ -37,4 +37,13 @@ public class AccountDao {
     private Timestamp createdDate;
 
     private Timestamp closedDate;
+
+    public AccountDao(String description, Double balance, String accountType,
+                      String accountStatusType, Timestamp createdDate) {
+        this.description = description;
+        this.balance = balance;
+        this.accountType = accountType;
+        this.accountStatusType = accountStatusType;
+        this.createdDate = createdDate;
+    }
 }
