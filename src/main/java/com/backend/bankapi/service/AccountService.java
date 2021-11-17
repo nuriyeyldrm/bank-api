@@ -39,15 +39,11 @@ public class AccountService {
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, id)));
     }
 
-    public AccountDao findAllBySsn(String ssn) throws ResourceNotFoundException {
+    public List<AccountDao> findAllBySsn(String ssn) throws ResourceNotFoundException {
         User user = userRepository.findBySsn(ssn)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
-        Account account = accountRepository.findByUserId(user)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
-
-        return new AccountDao(account.getDescription(), account.getBalance(), account.getAccountType().toString(),
-                account.getAccountStatusType().toString(), account.getAccModInfId().getCreatedDate());
+        return accountRepository.findAllByyUserId(user);
     }
 
     public AccountDao findBySsnId(Long id, String ssn) throws ResourceNotFoundException {
@@ -59,8 +55,8 @@ public class AccountService {
 
         Optional<Account> account = accountRepository.findById(id);
 
-        return new AccountDao(account.get().getDescription(), account.get().getBalance(),
-                account.get().getAccountType().toString(), account.get().getAccountStatusType().toString(),
+        return new AccountDao(id, account.get().getDescription(), account.get().getBalance(),
+                account.get().getAccountType(), account.get().getAccountStatusType(),
                 account.get().getAccModInfId().getCreatedDate());
     }
 

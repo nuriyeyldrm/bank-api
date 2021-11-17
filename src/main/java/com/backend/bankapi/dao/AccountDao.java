@@ -1,7 +1,6 @@
 package com.backend.bankapi.dao;
 
-import com.backend.bankapi.domain.ModifyInformation;
-import com.backend.bankapi.domain.User;
+import com.backend.bankapi.domain.AccountModifyInformation;
 import com.backend.bankapi.domain.enumeration.AccountStatusType;
 import com.backend.bankapi.domain.enumeration.AccountType;
 import lombok.AllArgsConstructor;
@@ -9,17 +8,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.sql.Timestamp;
-import java.util.Date;
 
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class AccountDao {
+
+    private Long id;
 
     @Size(max = 250, message = "Size exceeded")
     @NotNull(message = "Please write description")
@@ -29,17 +28,28 @@ public class AccountDao {
     private Double balance;
 
     @NotNull(message = "Please choose account type")
-    private String accountType;
+    private AccountType accountType;
 
     @NotNull(message = "Please choose account status type")
-    private String accountStatusType;
+    private AccountStatusType accountStatusType;
 
     private Timestamp createdDate;
 
     private Timestamp closedDate;
 
-    public AccountDao(String description, Double balance, String accountType,
-                      String accountStatusType, Timestamp createdDate) {
+    public AccountDao(Long id, String description, Double balance, AccountType accountType,
+                      AccountStatusType accountStatusType, AccountModifyInformation accountModifyInformation) {
+        this.id = id;
+        this.description = description;
+        this.balance = balance;
+        this.accountType = accountType;
+        this.accountStatusType = accountStatusType;
+        this.createdDate = accountModifyInformation.getCreatedDate();
+    }
+
+    public AccountDao(Long id, String description, Double balance, AccountType accountType,
+                      AccountStatusType accountStatusType, Timestamp createdDate) {
+        this.id = id;
         this.description = description;
         this.balance = balance;
         this.accountType = accountType;

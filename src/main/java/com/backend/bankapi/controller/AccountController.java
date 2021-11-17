@@ -41,9 +41,9 @@ public class AccountController {
     }
 
     @GetMapping("/user/auth")
-    public ResponseEntity<AccountDao> getAccountsBySsn(HttpServletRequest request){
+    public ResponseEntity<List<AccountDao>> getAccountsBySsn(HttpServletRequest request){
         String ssn = (String) request.getAttribute("ssn");
-        AccountDao account = accountService.findAllBySsn(ssn);
+        List<AccountDao> account = accountService.findAllBySsn(ssn);
         return new ResponseEntity<>(account, HttpStatus.OK);
     }
 
