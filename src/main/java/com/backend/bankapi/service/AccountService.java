@@ -109,4 +109,42 @@ public class AccountService {
 
         accountRepository.save(account);
     }
+
+
+    public void updateAccountAuth(String ssn, Long id, Account account) throws BadRequestException {
+        User user = userRepository.findBySsn(ssn)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
+
+        Account acc = accountRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, id)));
+
+        Timestamp closedDate = null;
+        if (account.getAccountStatusType().equals(AccountStatusType.CLOSED))
+            closedDate = accountModifyInformation.setDate();
+
+        String lastModifiedBy = accountModifyInformation.setModifiedBy(user.getFirstName(), user.getLastName(),
+                user.getRoles());
+
+        Timestamp lastModifiedDate = accountModifyInformation.setDate();
+
+        AccountModifyInformation accountModifyInformation = new AccountModifyInformation(acc.getAccModInfId().getId(),
+                lastModifiedBy, lastModifiedDate, closedDate);
+
+        accModifyInformationRepository.save(accountModifyInformation);
+
+        account.setUserId(acc.getUserId());
+        account.setId(id);
+        account.setAccModInfId(accountModifyInformation);
+
+        accountRepository.save(account);
+    }
+
+    public void removeByAccountId(Long id) throws ResourceNotFoundException {
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, id)));
+
+        accModifyInformationRepository.deleteById(account.getAccModInfId().getId());
+
+        accountRepository.deleteById(id);
+    }
 }

@@ -77,4 +77,26 @@ public class AccountController {
         map.put("success", true);
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
+
+    @PutMapping("/admin/{id}/auth")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Boolean>> updateAuthAccount(HttpServletRequest request,
+                                                              @PathVariable Long id,
+                                                              @Valid @RequestBody Account account) {
+        String ssn = (String) request.getAttribute("ssn");
+        accountService.updateAccountAuth(ssn, id, account);
+
+        Map<String, Boolean> map = new HashMap<>();
+        map.put("success", true);
+        return new ResponseEntity<>(map, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/admin/{id}/auth")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Boolean>> deleteAccount(@PathVariable Long id){
+        accountService.removeByAccountId(id);
+        Map<String, Boolean> map = new HashMap<>();
+        map.put("success", true);
+        return new ResponseEntity<>(map, HttpStatus.OK);
+    }
 }
