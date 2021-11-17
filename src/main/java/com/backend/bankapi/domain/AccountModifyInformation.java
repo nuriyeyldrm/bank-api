@@ -50,10 +50,11 @@ public class AccountModifyInformation implements Serializable {
         this.lastModifiedDate = lastModifiedDate;
     }
 
-    public AccountModifyInformation(Long id, String lastModifiedBy, Timestamp lastModifiedDate) {
+    public AccountModifyInformation(Long id, String lastModifiedBy, Timestamp lastModifiedDate, Timestamp closedDate) {
         this.id = id;
         this.lastModifiedBy = lastModifiedBy;
         this.lastModifiedDate = lastModifiedDate;
+        this.closedDate = closedDate;
     }
 
     public String setModifiedBy(String firstName, String lastName, Set<Role> roles) {
