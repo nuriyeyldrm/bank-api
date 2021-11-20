@@ -8,6 +8,7 @@ import com.backend.bankapi.domain.User;
 import com.backend.bankapi.exception.ResourceNotFoundException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,5 +24,8 @@ public interface TransferRepository extends JpaRepository<Transfer, Long> {
 
     List<ProjectTransfer> findAllByUserId(User id) throws ResourceNotFoundException;
 
-    void deleteByFromAccountId(Account id) throws ResourceNotFoundException;
+    List<Transfer> findAllByFromAccountId(Account id) throws ResourceNotFoundException;
+
+    @Transactional
+    void deleteAllByFromAccountId(Account id) throws ResourceNotFoundException;
 }

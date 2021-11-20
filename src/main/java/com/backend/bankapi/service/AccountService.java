@@ -146,9 +146,15 @@ public class AccountService {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, id)));
 
-        accModifyInformationRepository.deleteById(account.getAccModInfId().getId());
-//        transferRepository.deleteByFromAccountId(account);
+        List<Transfer> transfer = transferRepository.findAllByFromAccountId(account);
 
-        accountRepository.deleteById(id);
+        if (!transfer.isEmpty())
+            transferRepository.deleteAllByFromAccountId(account);
+
+        else {
+            accModifyInformationRepository.deleteById(account.getAccModInfId().getId());
+            accountRepository.deleteById(id);
+        }
+
     }
 }

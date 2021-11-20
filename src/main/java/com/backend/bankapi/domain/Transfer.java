@@ -31,7 +31,7 @@ public class Transfer implements Serializable {
     @NotNull(message = "Please write correct sender account id")
     private Long toAccountId;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User userId;
 
