@@ -16,6 +16,8 @@ The Banking API implements a complex domain model flow to banking scenario. The 
 ##### Application starts on localhost port 8080
 - [http://localhost:8080/bank/api/user/*]
 - [http://localhost:8080/bank/api/admin/*]
+- [http://localhost:8080/bank/api/account/*]
+- [http://localhost:8080/bank/api/transfer/*]
 
 #### Available Services
 | Http Method | Path | Usage |
