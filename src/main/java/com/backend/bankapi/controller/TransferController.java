@@ -3,7 +3,6 @@ package com.backend.bankapi.controller;
 import com.backend.bankapi.projection.ProjectTransferAdmin;
 import com.backend.bankapi.projection.ProjectTransfer;
 import com.backend.bankapi.dao.TransferDao;
-import com.backend.bankapi.domain.Transfer;
 import com.backend.bankapi.service.TransferService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
