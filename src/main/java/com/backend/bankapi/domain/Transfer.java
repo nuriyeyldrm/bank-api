@@ -24,8 +24,9 @@ public class Transfer implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "Please write correct receiver account id")
-    private Long fromAccountId;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "from_account_id", referencedColumnName = "id")
+    private Account fromAccountId;
 
     @NotNull(message = "Please write correct sender account id")
     private Long toAccountId;
