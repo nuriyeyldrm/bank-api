@@ -1,6 +1,7 @@
 package com.backend.bankapi.repository;
 
-import com.backend.bankapi.dao.ProjectTransfer;
+import com.backend.bankapi.projection.ProjectTransferAdmin;
+import com.backend.bankapi.projection.ProjectTransfer;
 import com.backend.bankapi.domain.Transfer;
 import com.backend.bankapi.domain.User;
 import com.backend.bankapi.exception.ResourceNotFoundException;
@@ -13,9 +14,11 @@ import java.util.Optional;
 @Repository
 public interface TransferRepository extends JpaRepository<Transfer, Long> {
 
-    Optional<Transfer> findByUserId(User id) throws ResourceNotFoundException;
+    Optional<ProjectTransferAdmin> findByIdAndId(Long id, Long ids) throws ResourceNotFoundException;
 
-    Optional<Transfer> findByIdAndUserId(Long id, User userId) throws ResourceNotFoundException;
+    Optional<ProjectTransfer> findByIdAndUserId(Long id, User userId) throws ResourceNotFoundException;
+
+    List<ProjectTransferAdmin> findAllBy() throws ResourceNotFoundException;
 
     List<ProjectTransfer> findAllByUserId(User id) throws ResourceNotFoundException;
 }

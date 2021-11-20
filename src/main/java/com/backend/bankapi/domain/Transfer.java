@@ -52,4 +52,16 @@ public class Transfer implements Serializable {
     @NotNull(message = "Please write description")
     @Column(nullable = false)
     private String description;
+
+    public Transfer(Account fromAccountId, Long toAccountId, User userId, Double transactionAmount, Double newBalance,
+                    CurrencyCode currencyCode, Timestamp transactionDate, String description) {
+        this.fromAccountId = fromAccountId;
+        this.toAccountId = toAccountId;
+        this.userId = userId;
+        this.transactionAmount = transactionAmount;
+        this.newBalance = newBalance;
+        this.currencyCode = currencyCode;
+        this.transactionDate = transactionDate;
+        this.description = description;
+    }
 }

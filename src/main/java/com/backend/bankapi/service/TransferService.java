@@ -1,11 +1,11 @@
 package com.backend.bankapi.service;
 
-import com.backend.bankapi.dao.ProjectTransfer;
+import com.backend.bankapi.projection.ProjectTransferAdmin;
+import com.backend.bankapi.projection.ProjectTransfer;
+import com.backend.bankapi.dao.TransferDao;
 import com.backend.bankapi.domain.Account;
-import com.backend.bankapi.domain.AccountModifyInformation;
 import com.backend.bankapi.domain.Transfer;
 import com.backend.bankapi.domain.User;
-import com.backend.bankapi.domain.enumeration.AccountStatusType;
 import com.backend.bankapi.exception.BadRequestException;
 import com.backend.bankapi.exception.ResourceNotFoundException;
 import com.backend.bankapi.repository.AccountRepository;
@@ -31,12 +31,12 @@ public class TransferService {
     private final static String ACCOUNT_NOT_FOUND_MSG = "account with id %s not found";
     private final static String TRANSFER_NOT_FOUND_MSG = "transfer with id %d not found";
 
-    public List<Transfer> fetchAllTransfers(){
-        return transferRepository.findAll();
+    public List<ProjectTransferAdmin> fetchAllTransfers(){
+        return transferRepository.findAllBy();
     }
 
-    public Transfer findByIdAuth(Long id) throws ResourceNotFoundException {
-        return transferRepository.findById(id)
+    public ProjectTransferAdmin findByIdAuth(Long id) throws ResourceNotFoundException {
+        return transferRepository.findByIdAndId(id, id)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(TRANSFER_NOT_FOUND_MSG, id)));
     }
 
@@ -47,21 +47,18 @@ public class TransferService {
         return transferRepository.findAllByUserId(user);
     }
 
-    public Optional<Transfer> findBySsnId(Long id, String ssn) throws ResourceNotFoundException {
+    public Optional<ProjectTransfer> findBySsnId(Long id, String ssn) throws ResourceNotFoundException {
         User user = userRepository.findBySsn(ssn)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
-        transferRepository.findByUserId(user)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
-
-        return transferRepository.findById(id);
+        return transferRepository.findByIdAndUserId(id, user);
     }
 
-    public void create(String ssn, Transfer transfer) {
+    public void create(String ssn, TransferDao transfer) {
         User user = userRepository.findBySsn(ssn)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
-        Optional<Account> fromAccount = accountRepository.findByIdAndUserId(transfer.getFromAccountId().getId(), user);
+        Optional<Account> fromAccount = accountRepository.findByIdAndUserId(transfer.getFromAccountId(), user);
         Account toAccount = accountRepository.findById(transfer.getToAccountId())
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG,
                         transfer.getToAccountId())));
@@ -78,9 +75,10 @@ public class TransferService {
         Date date= new Date();
         long time = date.getTime();
         Timestamp transactionDate = new Timestamp(time);
-        transfer.setTransactionDate(transactionDate);
-        transfer.setUserId(user);
-        transfer.setNewBalance(newFromBalance);
+
+        Transfer transfer1 = new Transfer(fromAccount.get(), transfer.getToAccountId(), user,
+                transfer.getTransactionAmount(), newFromBalance, transfer.getCurrencyCode(),
+                transactionDate, transfer.getDescription());
 
         fromAccount.get().setBalance(newFromBalance);
         toAccount.setBalance(newToBalance);
@@ -88,6 +86,6 @@ public class TransferService {
         accountRepository.save(fromAccount.get());
         accountRepository.save(toAccount);
 
-        transferRepository.save(transfer);
+        transferRepository.save(transfer1);
     }
 }

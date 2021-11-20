@@ -1,17 +1,18 @@
-package com.backend.bankapi.dao;
+package com.backend.bankapi.projection;
 
-import com.backend.bankapi.domain.Account;
 import com.backend.bankapi.domain.enumeration.CurrencyCode;
 
 import java.sql.Timestamp;
 
-public interface ProjectTransfer {
+public interface ProjectTransferAdmin {
 
     Long getId();
 
     ProjectAccount getFromAccountId();
 
     Long getToAccountId();
+
+    ProjectUser getUserId();
 
     Double getTransactionAmount();
 

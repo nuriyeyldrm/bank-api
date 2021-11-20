@@ -1,4 +1,4 @@
-package com.backend.bankapi.dao;
+package com.backend.bankapi.projection;
 
 public interface ProjectAccount {
 

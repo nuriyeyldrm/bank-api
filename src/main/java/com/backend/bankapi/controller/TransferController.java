@@ -1,6 +1,8 @@
 package com.backend.bankapi.controller;
 
-import com.backend.bankapi.dao.ProjectTransfer;
+import com.backend.bankapi.projection.ProjectTransferAdmin;
+import com.backend.bankapi.projection.ProjectTransfer;
+import com.backend.bankapi.dao.TransferDao;
 import com.backend.bankapi.domain.Transfer;
 import com.backend.bankapi.service.TransferService;
 import lombok.AllArgsConstructor;
@@ -29,15 +31,15 @@ public class TransferController {
 
     @GetMapping("/admin/auth/all")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Transfer>> getAllTransfers(){
-        List<Transfer> transfers = transferService.fetchAllTransfers();
+    public ResponseEntity<List<ProjectTransferAdmin>> getAllTransfers(){
+        List<ProjectTransferAdmin> transfers = transferService.fetchAllTransfers();
         return new ResponseEntity<>(transfers, HttpStatus.OK);
     }
 
     @GetMapping("/admin/{id}/auth")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Transfer> getTransferByIdAuth(@PathVariable Long id){
-        Transfer transfer = transferService.findByIdAuth(id);
+    public ResponseEntity<ProjectTransferAdmin> getTransferByIdAuth(@PathVariable Long id){
+        ProjectTransferAdmin transfer = transferService.findByIdAuth(id);
         return new ResponseEntity<>(transfer, HttpStatus.OK);
     }
 
@@ -49,16 +51,16 @@ public class TransferController {
     }
 
     @GetMapping("/user/{id}/auth")
-    public ResponseEntity<Optional<Transfer>> getTransferBySsnId(@PathVariable Long id,
+    public ResponseEntity<Optional<ProjectTransfer>> getTransferBySsnId(@PathVariable Long id,
                                                         HttpServletRequest request){
         String ssn = (String) request.getAttribute("ssn");
-        Optional<Transfer> transfer = transferService.findBySsnId(id, ssn);
+        Optional<ProjectTransfer> transfer = transferService.findBySsnId(id, ssn);
         return new ResponseEntity<>(transfer, HttpStatus.OK);
     }
 
     @PostMapping("/create")
     public ResponseEntity<Map<String, Boolean>> createTransfer(HttpServletRequest request,
-                                                              @Valid @RequestBody Transfer transfer) {
+                                                              @Valid @RequestBody TransferDao transfer) {
         String ssn = (String) request.getAttribute("ssn");
         transferService.create(ssn, transfer);
 
