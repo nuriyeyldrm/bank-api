@@ -1,5 +1,6 @@
 package com.backend.bankapi.repository;
 
+import com.backend.bankapi.domain.Account;
 import com.backend.bankapi.projection.ProjectTransferAdmin;
 import com.backend.bankapi.projection.ProjectTransfer;
 import com.backend.bankapi.domain.Transfer;
@@ -21,4 +22,6 @@ public interface TransferRepository extends JpaRepository<Transfer, Long> {
     List<ProjectTransferAdmin> findAllBy() throws ResourceNotFoundException;
 
     List<ProjectTransfer> findAllByUserId(User id) throws ResourceNotFoundException;
+
+    void deleteByFromAccountId(Account id) throws ResourceNotFoundException;
 }

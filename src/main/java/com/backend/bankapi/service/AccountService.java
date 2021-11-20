@@ -7,6 +7,7 @@ import com.backend.bankapi.exception.BadRequestException;
 import com.backend.bankapi.exception.ResourceNotFoundException;
 import com.backend.bankapi.repository.AccModifyInformationRepository;
 import com.backend.bankapi.repository.AccountRepository;
+import com.backend.bankapi.repository.TransferRepository;
 import com.backend.bankapi.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,8 @@ public class AccountService {
     private final AccountRepository accountRepository;
 
     private final UserRepository userRepository;
+
+    private final TransferRepository transferRepository;
 
     private final AccModifyInformationRepository accModifyInformationRepository;
 
@@ -144,6 +147,7 @@ public class AccountService {
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, id)));
 
         accModifyInformationRepository.deleteById(account.getAccModInfId().getId());
+//        transferRepository.deleteByFromAccountId(account);
 
         accountRepository.deleteById(id);
     }

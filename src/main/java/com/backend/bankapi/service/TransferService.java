@@ -63,6 +63,18 @@ public class TransferService {
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG,
                         transfer.getToAccountId())));
 
+        if (transfer.getFromAccountId().equals(transfer.getToAccountId())) {
+            throw new BadRequestException("Money transfers cannot be made with the same accounts!");
+        }
+
+        if (!transfer.getCurrencyCode().equals(fromAccount.get().getCurrencyCode())) {
+            throw new BadRequestException("Currency does not match with your account!");
+        }
+
+        if (!toAccount.getCurrencyCode().equals(fromAccount.get().getCurrencyCode())) {
+            throw new BadRequestException("Currency does not match!");
+        }
+
         if (transfer.getTransactionAmount() > fromAccount.get().getBalance()){
             throw new BadRequestException("not enough funds available for transfer");
         }

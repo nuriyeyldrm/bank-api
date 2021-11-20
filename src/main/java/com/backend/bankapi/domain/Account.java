@@ -2,6 +2,7 @@ package com.backend.bankapi.domain;
 
 import com.backend.bankapi.domain.enumeration.AccountStatusType;
 import com.backend.bankapi.domain.enumeration.AccountType;
+import com.backend.bankapi.domain.enumeration.CurrencyCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,7 +25,7 @@ public class Account implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User userId;
 
@@ -36,6 +37,11 @@ public class Account implements Serializable {
     @NotNull(message = "Please enter balance")
     @Column(nullable = false)
     private Double balance;
+
+    @Enumerated(EnumType.STRING)
+    @NotNull(message = "Please enter currency code")
+    @Column(nullable = false)
+    private CurrencyCode currencyCode;
 
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Please choose account type")

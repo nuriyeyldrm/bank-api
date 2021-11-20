@@ -3,6 +3,7 @@ package com.backend.bankapi.dao;
 import com.backend.bankapi.domain.AccountModifyInformation;
 import com.backend.bankapi.domain.enumeration.AccountStatusType;
 import com.backend.bankapi.domain.enumeration.AccountType;
+import com.backend.bankapi.domain.enumeration.CurrencyCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,6 +27,9 @@ public class AccountDao {
 
     @NotNull(message = "Please enter balance")
     private Double balance;
+
+    @NotNull(message = "Please enter currency code")
+    private CurrencyCode currencyCode;
 
     @NotNull(message = "Please choose account type")
     private AccountType accountType;
