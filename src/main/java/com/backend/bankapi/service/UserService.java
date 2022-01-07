@@ -89,9 +89,10 @@ public class UserService {
 
     public void login(String ssn, String password) throws AuthException {
         try {
-            Optional<User> user = userRepository.findBySsn(ssn);
+            User user = userRepository.findBySsn(ssn) .orElseThrow(() ->
+                    new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
-            if (!BCrypt.checkpw(password, user.get().getPassword()))
+            if (!BCrypt.checkpw(password, user.getPassword()))
                 throw new AuthException("invalid credentials");
         } catch (Exception e) {
             throw new AuthException("invalid credentials");
@@ -102,7 +103,7 @@ public class UserService {
 
         boolean emailExists = userRepository.existsByEmail(userDao.getEmail());
         User userDetails = userRepository.findBySsn(ssn).orElseThrow(() ->
-                new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));;
+                new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
         if (emailExists && !userDao.getEmail().equals(userDetails.getEmail())){
             throw new ConflictException("Error: Email is already in use!");
@@ -125,10 +126,14 @@ public class UserService {
     public void updateUserAuth(String adminSsn, Long id, AdminDao adminDao) throws BadRequestException {
 
         boolean emailExists = userRepository.existsByEmail(adminDao.getEmail());
-        Optional<User> userDetails = userRepository.findById(id);
-        Optional<User> adminDetails = userRepository.findBySsn(adminSsn);
 
-        if (emailExists && !adminDao.getEmail().equals(userDetails.get().getEmail())){
+        User userDetails = userRepository.findById(id) .orElseThrow(() ->
+                new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, id)));
+
+        User adminDetails = userRepository.findBySsn(adminSsn).orElseThrow(() ->
+                new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, adminSsn)));
+
+        if (emailExists && !adminDao.getEmail().equals(userDetails.getEmail())){
             throw new ConflictException("Error: Email is already in use!");
         }
 
@@ -139,31 +144,33 @@ public class UserService {
         Set<String> userRoles = adminDao.getRole();
         Set<Role> roles = addRoles(userRoles);
 
-        String lastModifiedBy = modifyInformation.setModifiedBy(adminDetails.get().getFirstName(),
-                adminDetails.get().getLastName(), adminDetails.get().getRoles());
+        String lastModifiedBy = modifyInformation.setModifiedBy(adminDetails.getFirstName(),
+                adminDetails.getLastName(), adminDetails.getRoles());
 
         Timestamp lastModifiedDate = modifyInformation.setDate();
 
-        ModifyInformation modifyInformation = new ModifyInformation(userDetails.get().getModInfId().getId(),
+        ModifyInformation modifyInformation = new ModifyInformation(userDetails.getModInfId().getId(),
                 lastModifiedBy, lastModifiedDate);
 
         modifyInfRepository.save(modifyInformation);
 
-        User user = new User(id, userDetails.get().getSsn(), adminDao.getFirstName(), adminDao.getLastName(),
+        User user = new User(id, userDetails.getSsn(), adminDao.getFirstName(), adminDao.getLastName(),
                 adminDao.getEmail(), adminDao.getPassword(), adminDao.getAddress(), adminDao.getMobilePhoneNumber(),
-                userDetails.get().getModInfId(), roles);
+                userDetails.getModInfId(), roles);
 
         userRepository.save(user);
     }
 
     public void updatePassword(String ssn, String newPassword, String oldPassword) throws BadRequestException {
-        Optional<User> user = userRepository.findBySsn(ssn);
-        if (!(BCrypt.hashpw(oldPassword, user.get().getPassword()).equals(user.get().getPassword())))
+        User user = userRepository.findBySsn(ssn).orElseThrow(() ->
+                new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
+
+        if (!(BCrypt.hashpw(oldPassword, user.getPassword()).equals(user.getPassword())))
             throw new BadRequestException("password does not match");
 
         String hashedPassword = passwordEncoder.encode(newPassword);
-        user.get().setPassword(hashedPassword);
-        userRepository.save(user.get());
+        user.setPassword(hashedPassword);
+        userRepository.save(user);
     }
 
     public void removeById(Long id) throws ResourceNotFoundException {
