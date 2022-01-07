@@ -194,7 +194,7 @@ public class UserService {
             userRoles.forEach(role -> {
                 switch (role) {
                     case "Manager":
-                        Role adminRole = roleRepository.findByName(UserRole.ROLE_ADMIN)
+                        Role adminRole = roleRepository.findByName(UserRole.ROLE_MANAGER)
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                         roles.add(adminRole);
 

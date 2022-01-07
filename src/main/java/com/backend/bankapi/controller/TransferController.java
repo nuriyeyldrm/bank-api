@@ -29,28 +29,28 @@ public class TransferController {
     public TransferService transferService;
 
     @GetMapping("/auth/all")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<List<ProjectTransferAdmin>> getAllTransfers(){
         List<ProjectTransferAdmin> transfers = transferService.fetchAllTransfers();
         return new ResponseEntity<>(transfers, HttpStatus.OK);
     }
 
     @GetMapping("/user/{userId}/auth")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<List<ProjectTransferAdmin>> getTransfersByUserId(@PathVariable Long userId){
         List<ProjectTransferAdmin> transfer = transferService.findByUserId(userId);
         return new ResponseEntity<>(transfer, HttpStatus.OK);
     }
 
     @GetMapping("/{id}/auth")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<ProjectTransferAdmin> getTransferById(@PathVariable Long id){
         ProjectTransferAdmin transfer = transferService.findByIdAuth(id);
         return new ResponseEntity<>(transfer, HttpStatus.OK);
     }
 
     @GetMapping("")
-    @PreAuthorize("hasRole('CUSTOMER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('CUSTOMER') or hasRole('MANAGER')")
     public ResponseEntity<List<ProjectTransfer>> getTransfersBySsn(HttpServletRequest request){
         String ssn = (String) request.getAttribute("ssn");
         List<ProjectTransfer> transfers = transferService.findAllBySsn(ssn);
@@ -58,7 +58,7 @@ public class TransferController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('CUSTOMER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('CUSTOMER') or hasRole('MANAGER')")
     public ResponseEntity<Optional<ProjectTransfer>> getTransferBySsnId(@PathVariable Long id,
                                                         HttpServletRequest request){
         String ssn = (String) request.getAttribute("ssn");
@@ -67,7 +67,7 @@ public class TransferController {
     }
 
     @PostMapping("/create")
-    @PreAuthorize("hasRole('CUSTOMER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('CUSTOMER') or hasRole('MANAGER')")
     public ResponseEntity<Map<String, Boolean>> createTransfer(HttpServletRequest request,
                                                               @Valid @RequestBody TransferDao transfer) {
         String ssn = (String) request.getAttribute("ssn");
