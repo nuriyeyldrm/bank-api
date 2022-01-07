@@ -13,10 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+@Transactional
 @Repository
 public interface TransferRepository extends JpaRepository<Transfer, Long> {
 
-    Optional<ProjectTransferAdmin> findByIdAndId(Long id, Long ids) throws ResourceNotFoundException;
+    Optional<ProjectTransferAdmin> findByIdOrderById(Long id) throws ResourceNotFoundException;
 
     Optional<ProjectTransfer> findByIdAndUserId(Long id, User userId) throws ResourceNotFoundException;
 
@@ -28,6 +29,5 @@ public interface TransferRepository extends JpaRepository<Transfer, Long> {
 
     List<Transfer> findAllByFromAccountId(Account id) throws ResourceNotFoundException;
 
-    @Transactional
     void deleteAllByFromAccountId(Account id) throws ResourceNotFoundException;
 }

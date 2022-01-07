@@ -28,6 +28,7 @@ public class TransferService {
     private final UserRepository userRepository;
 
     private final static String SSN_NOT_FOUND_MSG = "user with ssn %s not found";
+    private final static String USER_NOT_FOUND_MSG = "user with id %d not found";
     private final static String ACCOUNT_NOT_FOUND_MSG = "account with id %s not found";
     private final static String TRANSFER_NOT_FOUND_MSG = "transfer with id %d not found";
 
@@ -35,15 +36,15 @@ public class TransferService {
         return transferRepository.findAllBy();
     }
 
-    public List<ProjectTransferAdmin> findByUserId(Long id) throws ResourceNotFoundException {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, id)));
+    public List<ProjectTransferAdmin> findByUserId(Long userId) throws ResourceNotFoundException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, userId)));
 
         return transferRepository.findAllByUserIdOrderById(user);
     }
 
     public ProjectTransferAdmin findByIdAuth(Long id) throws ResourceNotFoundException {
-        return transferRepository.findByIdAndId(id, id)
+        return transferRepository.findByIdOrderById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(TRANSFER_NOT_FOUND_MSG, id)));
     }
 
@@ -65,7 +66,10 @@ public class TransferService {
         User user = userRepository.findBySsn(ssn)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
-        Optional<Account> fromAccount = accountRepository.findByIdAndUserId(transfer.getFromAccountId(), user);
+        Account fromAccount = accountRepository.findByIdAndUserId(transfer.getFromAccountId(), user)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        String.format(ACCOUNT_NOT_FOUND_MSG, transfer.getFromAccountId())));
+
         Account toAccount = accountRepository.findById(transfer.getToAccountId())
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG,
                         transfer.getToAccountId())));
@@ -74,19 +78,19 @@ public class TransferService {
             throw new BadRequestException("Money transfers cannot be made with the same accounts!");
         }
 
-        if (!transfer.getCurrencyCode().equals(fromAccount.get().getCurrencyCode())) {
+        if (!transfer.getCurrencyCode().equals(fromAccount.getCurrencyCode())) {
             throw new BadRequestException("Currency does not match with your account!");
         }
 
-        if (!toAccount.getCurrencyCode().equals(fromAccount.get().getCurrencyCode())) {
+        if (!toAccount.getCurrencyCode().equals(fromAccount.getCurrencyCode())) {
             throw new BadRequestException("Currency does not match!");
         }
 
-        if (transfer.getTransactionAmount() > fromAccount.get().getBalance()){
+        if (transfer.getTransactionAmount() > fromAccount.getBalance()){
             throw new BadRequestException("not enough funds available for transfer");
         }
 
-        final Double newFromBalance = fromAccount.get().getBalance() - transfer.getTransactionAmount();
+        final Double newFromBalance = fromAccount.getBalance() - transfer.getTransactionAmount();
 
         final Double newToBalance = toAccount.getBalance() + transfer.getTransactionAmount();
 
@@ -95,14 +99,14 @@ public class TransferService {
         long time = date.getTime();
         Timestamp transactionDate = new Timestamp(time);
 
-        Transfer transfer1 = new Transfer(fromAccount.get(), transfer.getToAccountId(), user,
+        Transfer transfer1 = new Transfer(fromAccount, transfer.getToAccountId(), user,
                 transfer.getTransactionAmount(), newFromBalance, transfer.getCurrencyCode(),
                 transactionDate, transfer.getDescription());
 
-        fromAccount.get().setBalance(newFromBalance);
+        fromAccount.setBalance(newFromBalance);
         toAccount.setBalance(newToBalance);
 
-        accountRepository.save(fromAccount.get());
+        accountRepository.save(fromAccount);
         accountRepository.save(toAccount);
 
         transferRepository.save(transfer1);
