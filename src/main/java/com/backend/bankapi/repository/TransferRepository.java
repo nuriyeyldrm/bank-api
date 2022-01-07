@@ -22,6 +22,8 @@ public interface TransferRepository extends JpaRepository<Transfer, Long> {
 
     List<ProjectTransferAdmin> findAllBy() throws ResourceNotFoundException;
 
+    List<ProjectTransferAdmin> findAllByUserIdOrderById(User id) throws ResourceNotFoundException;
+
     List<ProjectTransfer> findAllByUserId(User id) throws ResourceNotFoundException;
 
     List<Transfer> findAllByFromAccountId(Account id) throws ResourceNotFoundException;

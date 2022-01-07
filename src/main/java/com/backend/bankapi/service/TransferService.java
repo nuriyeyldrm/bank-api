@@ -35,6 +35,13 @@ public class TransferService {
         return transferRepository.findAllBy();
     }
 
+    public List<ProjectTransferAdmin> findByUserId(Long id) throws ResourceNotFoundException {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, id)));
+
+        return transferRepository.findAllByUserIdOrderById(user);
+    }
+
     public ProjectTransferAdmin findByIdAuth(Long id) throws ResourceNotFoundException {
         return transferRepository.findByIdAndId(id, id)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(TRANSFER_NOT_FOUND_MSG, id)));
