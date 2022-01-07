@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Repository
-@Transactional(readOnly = true)
+@Transactional
 public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<UserDao> findBySsnOrderById(String ssn) throws ResourceNotFoundException;
@@ -25,7 +25,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Boolean existsByEmail(String email) throws ConflictException;
 
-    @Transactional
     @Modifying
     @Query("UPDATE User u " +
             "SET u.firstName = ?2, u.lastName = ?3, u.email = ?4, u.address = ?5, u.mobilePhoneNumber = ?6 " +
