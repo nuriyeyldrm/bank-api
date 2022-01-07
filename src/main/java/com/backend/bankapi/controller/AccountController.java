@@ -33,17 +33,17 @@ public class AccountController {
         return new ResponseEntity<>(accounts, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}/auth")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Account> getAccountById(@PathVariable Long id){
-        Account account = accountService.findByIdAuth(id);
-        return new ResponseEntity<>(account, HttpStatus.OK);
-    }
-
     @GetMapping("/user/{userId}/auth")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Account>> getAccountsByUserId(@PathVariable Long userId){
         List<Account> account = accountService.findAllByUserId(userId);
+        return new ResponseEntity<>(account, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/auth")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Account> getAccountById(@PathVariable Long id){
+        Account account = accountService.findByIdAuth(id);
         return new ResponseEntity<>(account, HttpStatus.OK);
     }
 

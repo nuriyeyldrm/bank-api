@@ -1,5 +1,6 @@
 package com.backend.bankapi.dao;
 
+import com.backend.bankapi.domain.Account;
 import com.backend.bankapi.domain.AccountModifyInformation;
 import com.backend.bankapi.domain.enumeration.AccountStatusType;
 import com.backend.bankapi.domain.enumeration.AccountType;
@@ -41,15 +42,14 @@ public class AccountDao {
 
     private Timestamp closedDate;
 
-    public AccountDao(Long id, String description, Double balance, CurrencyCode currencyCode, AccountType accountType,
-                      AccountStatusType accountStatusType, AccountModifyInformation accountModifyInformation) {
-        this.id = id;
-        this.description = description;
-        this.balance = balance;
-        this.currencyCode = currencyCode;
-        this.accountType = accountType;
-        this.accountStatusType = accountStatusType;
-        this.createdDate = accountModifyInformation.getCreatedDate();
+    public AccountDao(Account account) {
+        this.id = account.getId();
+        this.description = account.getDescription();
+        this.balance = account.getBalance();
+        this.currencyCode = account.getCurrencyCode();
+        this.accountType = account.getAccountType();
+        this.accountStatusType = account.getAccountStatusType();
+        this.createdDate = account.getAccModInfId().getCreatedDate();
     }
 
     public AccountDao(Long id, String description, Double balance, AccountType accountType,

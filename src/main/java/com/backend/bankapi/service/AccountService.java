@@ -20,17 +20,12 @@ import java.util.List;
 public class AccountService {
 
     private final AccountRepository accountRepository;
-
     private final UserRepository userRepository;
-
     private final TransferRepository transferRepository;
-
     private final AccModifyInformationRepository accModifyInformationRepository;
-
     private final AccountModifyInformation accountModifyInformation = new AccountModifyInformation();
 
     private final static String ACCOUNT_NOT_FOUND_MSG = "account with id %d not found";
-
     private final static String SSN_NOT_FOUND_MSG = "account with ssn %s not found";
     private final static String USER_NOT_FOUND_MSG = "user with id %d not found";
 
@@ -54,18 +49,15 @@ public class AccountService {
         User user = userRepository.findBySsn(ssn)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
-        return accountRepository.findAllByyUserId(user);
+        return accountRepository.findAllByUserIdOrderById(user);
     }
 
     public AccountDao findBySsnId(Long id, String ssn) throws ResourceNotFoundException {
         User user = userRepository.findBySsn(ssn)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
-        Account account = accountRepository.findByIdAndUserId(id, user).orElseThrow(() ->
-                new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, id)));;
-
-        return new AccountDao(id, account.getDescription(), account.getBalance(), account.getAccountType(),
-                account.getAccountStatusType(), account.getAccModInfId().getCreatedDate());
+        return accountRepository.findByIdAndUserIdOrderById(id, user).orElseThrow(() ->
+                new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, id)));
     }
 
     public void add(String ssn, Account account) throws BadRequestException {
@@ -89,7 +81,6 @@ public class AccountService {
     }
 
     public void updateAccount(String ssn, Long id, Account account) throws BadRequestException {
-
         User user = userRepository.findBySsn(ssn)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 

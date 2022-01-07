@@ -12,18 +12,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+@Transactional
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
-    Optional<Account> findByUserId(User id) throws ResourceNotFoundException;
-
     Optional<Account> findByIdAndUserId(Long id, User userId) throws ResourceNotFoundException;
+
+    Optional<AccountDao> findByIdAndUserIdOrderById(Long id, User user) throws ResourceNotFoundException;
 
     List<Account> findAllByUserId(User user) throws ResourceNotFoundException;
 
-    @Transactional
-    @Query("SELECT new com.backend.bankapi.dao.AccountDao(a.id, a.description, a.balance, a.currencyCode, " +
-            "a.accountType, a.accountStatusType, a.accModInfId) FROM Account a, AccountModifyInformation ai " +
-            "WHERE a.userId = ?1 and ai.id = a.accModInfId.id")
-    List<AccountDao> findAllByyUserId(User id) throws ResourceNotFoundException;
+    List<AccountDao> findAllByUserIdOrderById(User user) throws ResourceNotFoundException;
 }
