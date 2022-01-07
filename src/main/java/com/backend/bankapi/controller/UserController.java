@@ -51,7 +51,7 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('CUSTOMER') or hasRole('ADMIN') or hasRole('EMPLOYEE')")
     public ResponseEntity<UserDao> getUserBySsn(HttpServletRequest request){
         String ssn = (String) request.getAttribute("ssn");
         UserDao userDao = userService.findBySsn(ssn);
@@ -86,7 +86,7 @@ public class UserController {
     }
 
     @PutMapping("/user/update")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('CUSTOMER') or hasRole('ADMIN') or hasRole('EMPLOYEE')")
     public ResponseEntity<Map<String, Boolean>> updateUser(HttpServletRequest request,
                                                            @Valid @RequestBody UserDao userDao) {
         String ssn = (String) request.getAttribute("ssn");
@@ -109,7 +109,7 @@ public class UserController {
     }
 
     @PatchMapping("/user/password")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('CUSTOMER') or hasRole('ADMIN')")
     public ResponseEntity<Map<String, Boolean>> updatePassword(HttpServletRequest request,
                                                                @RequestBody Map<String, Object> userMap) {
         String ssn = (String) request.getAttribute("ssn");

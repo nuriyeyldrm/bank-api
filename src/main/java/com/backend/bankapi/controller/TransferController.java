@@ -50,7 +50,7 @@ public class TransferController {
     }
 
     @GetMapping("")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('CUSTOMER') or hasRole('ADMIN')")
     public ResponseEntity<List<ProjectTransfer>> getTransfersBySsn(HttpServletRequest request){
         String ssn = (String) request.getAttribute("ssn");
         List<ProjectTransfer> transfers = transferService.findAllBySsn(ssn);
@@ -58,7 +58,7 @@ public class TransferController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('CUSTOMER') or hasRole('ADMIN')")
     public ResponseEntity<Optional<ProjectTransfer>> getTransferBySsnId(@PathVariable Long id,
                                                         HttpServletRequest request){
         String ssn = (String) request.getAttribute("ssn");
@@ -67,7 +67,7 @@ public class TransferController {
     }
 
     @PostMapping("/create")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('CUSTOMER') or hasRole('ADMIN')")
     public ResponseEntity<Map<String, Boolean>> createTransfer(HttpServletRequest request,
                                                               @Valid @RequestBody TransferDao transfer) {
         String ssn = (String) request.getAttribute("ssn");

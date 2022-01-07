@@ -48,7 +48,7 @@ public class AccountController {
     }
 
     @GetMapping("")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('CUSTOMER') or hasRole('ADMIN')")
     public ResponseEntity<List<AccountDao>> getAccountsBySsn(HttpServletRequest request){
         String ssn = (String) request.getAttribute("ssn");
         List<AccountDao> account = accountService.findAllBySsn(ssn);
@@ -56,7 +56,7 @@ public class AccountController {
     }
 
     @GetMapping("/{id}/user")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('CUSTOMER') or hasRole('ADMIN')")
     public ResponseEntity<AccountDao> getAccountBySsnId(@PathVariable Long id,
                                                         HttpServletRequest request){
         String ssn = (String) request.getAttribute("ssn");
@@ -65,7 +65,7 @@ public class AccountController {
     }
 
     @PostMapping("/create")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('CUSTOMER') or hasRole('ADMIN')")
     public ResponseEntity<Map<String, Boolean>> createAccount(HttpServletRequest request,
                                                               @Valid @RequestBody Account account) {
         String ssn = (String) request.getAttribute("ssn");
@@ -77,7 +77,7 @@ public class AccountController {
     }
 
     @PutMapping("/{id}/update")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('CUSTOMER') or hasRole('ADMIN')")
     public ResponseEntity<Map<String, Boolean>> updateAccount(HttpServletRequest request,
                                                               @PathVariable Long id,
                                                               @Valid @RequestBody Account account) {

@@ -67,7 +67,7 @@ public class UserService {
         user.setPassword(encodedPassword);
 
         Set<Role> roles = new HashSet<>();
-        Role customerRole = roleRepository.findByName(UserRole.ROLE_USER)
+        Role customerRole = roleRepository.findByName(UserRole.ROLE_CUSTOMER)
                 .orElseThrow(() -> new ResourceNotFoundException("Error: Role is not found."));
         roles.add(customerRole);
 
@@ -187,7 +187,7 @@ public class UserService {
         Set<Role> roles = new HashSet<>();
 
         if (userRoles == null) {
-            Role userRole = roleRepository.findByName(UserRole.ROLE_USER)
+            Role userRole = roleRepository.findByName(UserRole.ROLE_CUSTOMER)
                     .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
             roles.add(userRole);
         } else {
@@ -206,7 +206,7 @@ public class UserService {
 
                         break;
                     default:
-                        Role userRole = roleRepository.findByName(UserRole.ROLE_USER)
+                        Role userRole = roleRepository.findByName(UserRole.ROLE_CUSTOMER)
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                         roles.add(userRole);
                 }
