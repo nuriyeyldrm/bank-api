@@ -49,11 +49,8 @@ public class UserService {
     }
 
     public UserDao findBySsn(String ssn) throws ResourceNotFoundException {
-        User user = userRepository.findBySsn(ssn)
+        return  userRepository.findBySsnOrderById(ssn)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
-
-        return new UserDao(ssn, user.getFirstName(), user.getLastName(), user.getEmail(), user.getAddress(),
-                user.getMobilePhoneNumber());
     }
 
     public void register(User user) throws BadRequestException {
@@ -104,18 +101,19 @@ public class UserService {
     public void updateUser(String ssn, UserDao userDao) throws BadRequestException {
 
         boolean emailExists = userRepository.existsByEmail(userDao.getEmail());
-        Optional<User> userDetails = userRepository.findBySsn(ssn);
+        User userDetails = userRepository.findBySsn(ssn).orElseThrow(() ->
+                new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));;
 
-        if (emailExists && !userDao.getEmail().equals(userDetails.get().getEmail())){
+        if (emailExists && !userDao.getEmail().equals(userDetails.getEmail())){
             throw new ConflictException("Error: Email is already in use!");
         }
 
         String lastModifiedBy = modifyInformation.setModifiedBy(userDao.getFirstName(), userDao.getLastName(),
-                userDetails.get().getRoles());
+                userDetails.getRoles());
 
         Timestamp lastModifiedDate = modifyInformation.setDate();
 
-        ModifyInformation modifyInformation = new ModifyInformation(userDetails.get().getModInfId().getId(),
+        ModifyInformation modifyInformation = new ModifyInformation(userDetails.getModInfId().getId(),
                 lastModifiedBy, lastModifiedDate);
 
         modifyInfRepository.save(modifyInformation);

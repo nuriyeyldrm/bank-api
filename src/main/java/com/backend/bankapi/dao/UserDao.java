@@ -1,5 +1,6 @@
 package com.backend.bankapi.dao;
 
+import com.backend.bankapi.domain.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -45,13 +46,12 @@ public class UserDao {
     @NotNull(message = "Please enter your phone number")
     private String mobilePhoneNumber;
 
-    public UserDao(String ssn, String firstName, String lastName, String email,
-                   String address, String mobilePhoneNumber) {
-        this.ssn = ssn;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.address = address;
-        this.mobilePhoneNumber = mobilePhoneNumber;
+    public UserDao(User user) {
+        this.ssn = user.getSsn();
+        this.firstName = user.getFirstName();
+        this.lastName = user.getMobilePhoneNumber();
+        this.email = user.getEmail();
+        this.address = user.getAddress();
+        this.mobilePhoneNumber = user.getMobilePhoneNumber();
     }
 }

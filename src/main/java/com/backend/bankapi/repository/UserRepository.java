@@ -1,5 +1,6 @@
 package com.backend.bankapi.repository;
 
+import com.backend.bankapi.dao.UserDao;
 import com.backend.bankapi.domain.User;
 import com.backend.bankapi.exception.BadRequestException;
 import com.backend.bankapi.exception.ConflictException;
@@ -15,6 +16,8 @@ import java.util.Optional;
 @Repository
 @Transactional(readOnly = true)
 public interface UserRepository extends JpaRepository<User, Long> {
+
+    Optional<UserDao> findBySsnOrderById(String ssn) throws ResourceNotFoundException;
 
     Optional<User> findBySsn(String ssn) throws ResourceNotFoundException;
 
