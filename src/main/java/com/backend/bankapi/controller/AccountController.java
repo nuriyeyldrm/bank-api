@@ -26,28 +26,37 @@ public class AccountController {
 
     public AccountService accountService;
 
-    @GetMapping("/admin/auth/all")
+    @GetMapping("/auth/all")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Account>> getAllAccounts(){
         List<Account> accounts = accountService.fetchAllAccounts();
         return new ResponseEntity<>(accounts, HttpStatus.OK);
     }
 
-    @GetMapping("/admin/{id}/auth")
+    @GetMapping("/{id}/auth")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Account> getAccountByIdAuth(@PathVariable Long id){
+    public ResponseEntity<Account> getAccountById(@PathVariable Long id){
         Account account = accountService.findByIdAuth(id);
         return new ResponseEntity<>(account, HttpStatus.OK);
     }
 
-    @GetMapping("/user/auth")
+    @GetMapping("/user/{userId}/auth")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<Account>> getAccountsByUserId(@PathVariable Long userId){
+        List<Account> account = accountService.findAllByUserId(userId);
+        return new ResponseEntity<>(account, HttpStatus.OK);
+    }
+
+    @GetMapping("")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<List<AccountDao>> getAccountsBySsn(HttpServletRequest request){
         String ssn = (String) request.getAttribute("ssn");
         List<AccountDao> account = accountService.findAllBySsn(ssn);
         return new ResponseEntity<>(account, HttpStatus.OK);
     }
 
-    @GetMapping("/user/{id}/auth")
+    @GetMapping("/{id}/user")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<AccountDao> getAccountBySsnId(@PathVariable Long id,
                                                         HttpServletRequest request){
         String ssn = (String) request.getAttribute("ssn");
@@ -56,6 +65,7 @@ public class AccountController {
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Map<String, Boolean>> createAccount(HttpServletRequest request,
                                                               @Valid @RequestBody Account account) {
         String ssn = (String) request.getAttribute("ssn");
@@ -66,7 +76,8 @@ public class AccountController {
         return new ResponseEntity<>(map, HttpStatus.CREATED);
     }
 
-    @PutMapping("/user/{id}/auth")
+    @PutMapping("/{id}/update")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Map<String, Boolean>> updateAccount(HttpServletRequest request,
                                                               @PathVariable Long id,
                                                               @Valid @RequestBody Account account) {
@@ -78,7 +89,7 @@ public class AccountController {
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
-    @PutMapping("/admin/{id}/auth")
+    @PutMapping("/{id}/auth")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Boolean>> updateAuthAccount(HttpServletRequest request,
                                                               @PathVariable Long id,
@@ -91,7 +102,7 @@ public class AccountController {
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
-    @DeleteMapping("/admin/{id}/auth")
+    @DeleteMapping("/{id}/auth")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Boolean>> deleteAccount(@PathVariable Long id){
         accountService.removeByAccountId(id);

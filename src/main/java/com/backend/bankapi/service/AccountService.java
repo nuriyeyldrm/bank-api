@@ -33,9 +33,17 @@ public class AccountService {
     private final static String ACCOUNT_NOT_FOUND_MSG = "account with id %d not found";
 
     private final static String SSN_NOT_FOUND_MSG = "account with ssn %s not found";
+    private final static String USER_NOT_FOUND_MSG = "user with id %d not found";
 
     public List<Account> fetchAllAccounts(){
         return accountRepository.findAll();
+    }
+
+    public List<Account> findAllByUserId(Long userId) throws ResourceNotFoundException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, userId)));
+
+        return accountRepository.findAllByUserId(user);
     }
 
     public Account findByIdAuth(Long id) throws ResourceNotFoundException {
@@ -54,14 +62,11 @@ public class AccountService {
         User user = userRepository.findBySsn(ssn)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
-        accountRepository.findByUserId(user)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
+        Account account = accountRepository.findByIdAndUserId(id, user).orElseThrow(() ->
+                new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, id)));;
 
-        Optional<Account> account = accountRepository.findById(id);
-
-        return new AccountDao(id, account.get().getDescription(), account.get().getBalance(),
-                account.get().getAccountType(), account.get().getAccountStatusType(),
-                account.get().getAccModInfId().getCreatedDate());
+        return new AccountDao(id, account.getDescription(), account.getBalance(), account.getAccountType(),
+                account.getAccountStatusType(), account.getAccModInfId().getCreatedDate());
     }
 
     public void add(String ssn, Account account) throws BadRequestException {

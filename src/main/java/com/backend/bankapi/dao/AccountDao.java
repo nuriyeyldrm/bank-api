@@ -41,11 +41,12 @@ public class AccountDao {
 
     private Timestamp closedDate;
 
-    public AccountDao(Long id, String description, Double balance, AccountType accountType,
+    public AccountDao(Long id, String description, Double balance, CurrencyCode currencyCode, AccountType accountType,
                       AccountStatusType accountStatusType, AccountModifyInformation accountModifyInformation) {
         this.id = id;
         this.description = description;
         this.balance = balance;
+        this.currencyCode = currencyCode;
         this.accountType = accountType;
         this.accountStatusType = accountStatusType;
         this.createdDate = accountModifyInformation.getCreatedDate();

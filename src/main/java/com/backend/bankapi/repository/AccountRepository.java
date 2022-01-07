@@ -19,9 +19,11 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     Optional<Account> findByIdAndUserId(Long id, User userId) throws ResourceNotFoundException;
 
+    List<Account> findAllByUserId(User user) throws ResourceNotFoundException;
+
     @Transactional
-    @Query("SELECT new com.backend.bankapi.dao.AccountDao(a.id, a.description, a.balance, a.accountType, " +
-            "a.accountStatusType, a.accModInfId) FROM Account a, AccountModifyInformation ai " +
+    @Query("SELECT new com.backend.bankapi.dao.AccountDao(a.id, a.description, a.balance, a.currencyCode, " +
+            "a.accountType, a.accountStatusType, a.accModInfId) FROM Account a, AccountModifyInformation ai " +
             "WHERE a.userId = ?1 and ai.id = a.accModInfId.id")
     List<AccountDao> findAllByyUserId(User id) throws ResourceNotFoundException;
 }
