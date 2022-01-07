@@ -5,7 +5,6 @@ import com.backend.bankapi.domain.Account;
 import com.backend.bankapi.domain.User;
 import com.backend.bankapi.exception.ResourceNotFoundException;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
