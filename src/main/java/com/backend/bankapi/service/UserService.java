@@ -173,7 +173,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void removeById(Long id) throws ResourceNotFoundException {
+    public void removeById(Long id) throws BadRequestException {
         boolean userExists = userRepository.existsById(id);
 
         if (!userExists){
