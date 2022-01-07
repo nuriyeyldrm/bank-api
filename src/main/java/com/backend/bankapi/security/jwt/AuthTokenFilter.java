@@ -1,6 +1,6 @@
-package com.backend.bankapi.security.config.jwt;
+package com.backend.bankapi.security.jwt;
 
-import com.backend.bankapi.security.config.service.UserDetailsServiceImpl;
+import com.backend.bankapi.security.service.UserDetailsServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

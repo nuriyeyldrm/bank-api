@@ -1,4 +1,4 @@
-package com.backend.bankapi.security.config.service;
+package com.backend.bankapi.security.service;
 
 import com.backend.bankapi.domain.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;

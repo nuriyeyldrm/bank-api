@@ -3,7 +3,7 @@ package com.backend.bankapi.controller;
 import com.backend.bankapi.dao.AdminDao;
 import com.backend.bankapi.dao.UserDao;
 import com.backend.bankapi.domain.User;
-import com.backend.bankapi.security.config.jwt.JwtUtils;
+import com.backend.bankapi.security.jwt.JwtUtils;
 import com.backend.bankapi.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -51,6 +51,7 @@ public class UserController {
     }
 
     @GetMapping("/user/auth")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<UserDao> getUserBySsn(HttpServletRequest request){
         String ssn = (String) request.getAttribute("ssn");
         UserDao userDao = userService.findBySsn(ssn);
@@ -85,6 +86,7 @@ public class UserController {
     }
 
     @PutMapping("/user/auth")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Map<String, Boolean>> updateUser(HttpServletRequest request,
                                                            @Valid @RequestBody UserDao userDao) {
         String ssn = (String) request.getAttribute("ssn");
@@ -107,6 +109,7 @@ public class UserController {
     }
 
     @PatchMapping("/user/auth")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Map<String, Boolean>> updatePassword(HttpServletRequest request,
                                                                @RequestBody Map<String, Object> userMap) {
         String ssn = (String) request.getAttribute("ssn");

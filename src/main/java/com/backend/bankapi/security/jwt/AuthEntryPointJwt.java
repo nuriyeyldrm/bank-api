@@ -1,4 +1,4 @@
-package com.backend.bankapi.security.config.jwt;
+package com.backend.bankapi.security.jwt;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

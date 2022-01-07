@@ -1,8 +1,8 @@
 package com.backend.bankapi.security.config;
 
-import com.backend.bankapi.security.config.jwt.AuthEntryPointJwt;
-import com.backend.bankapi.security.config.jwt.AuthTokenFilter;
-import com.backend.bankapi.security.config.service.UserDetailsServiceImpl;
+import com.backend.bankapi.security.jwt.AuthEntryPointJwt;
+import com.backend.bankapi.security.jwt.AuthTokenFilter;
+import com.backend.bankapi.security.service.UserDetailsServiceImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -51,20 +51,24 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable()
+        http.csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests().antMatchers("/bank/api/user/**", "/bank/api/admin/**",
                 "/bank/api/account", "/bank/api/transfer").permitAll()
                 .anyRequest().authenticated();
 
+        http.csrf().disable().exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+                .antMatcher("/bank/api/login")
+                .antMatcher("/bank/api/register");
+
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 
     @Override
     public void configure(WebSecurity web) {
-        web.ignoring().antMatchers("/login", "/register",
-                "/swagger-ui.html", "/v2/api-docs", "/configuration/**", "/swagger-resources/**",
-                "/webjars/**", "/api-docs/**");
+        web.ignoring().antMatchers("/swagger-ui.html", "/v2/api-docs", "/configuration/**",
+                "/swagger-resources/**", "/webjars/**", "/api-docs/**");
     }
 }
