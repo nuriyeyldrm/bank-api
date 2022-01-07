@@ -54,8 +54,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests().antMatchers("/bank/api/user/**", "/bank/api/admin/**",
-                "/bank/api/account", "/bank/api/transfer").permitAll()
+                .authorizeRequests().antMatchers("/bank/api/user/**", "/bank/api/account",
+                "/bank/api/transfer").permitAll()
                 .anyRequest().authenticated();
 
         http.csrf().disable().exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()

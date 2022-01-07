@@ -36,21 +36,21 @@ public class UserController {
 
     public JwtUtils jwtUtils;
 
-    @GetMapping("/admin/auth/all")
+    @GetMapping("/user/auth/all")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<User>> getAllUsers(){
         List<User> users = userService.fetchAllUsers();
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
-    @GetMapping("/admin/{id}/auth")
+    @GetMapping("/user/{id}/auth")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<User> getUserById(@PathVariable Long id){
         User user = userService.findById(id);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @GetMapping("/user/auth")
+    @GetMapping("/user")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<UserDao> getUserBySsn(HttpServletRequest request){
         String ssn = (String) request.getAttribute("ssn");
@@ -85,7 +85,7 @@ public class UserController {
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
-    @PutMapping("/user/auth")
+    @PutMapping("/user/update")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Map<String, Boolean>> updateUser(HttpServletRequest request,
                                                            @Valid @RequestBody UserDao userDao) {
@@ -96,7 +96,7 @@ public class UserController {
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
-    @PutMapping("/admin/{id}/auth")
+    @PutMapping("/user/{id}/auth")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Boolean>> updateUserAuth(HttpServletRequest request,
                                                                @PathVariable Long id,
@@ -108,7 +108,7 @@ public class UserController {
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
-    @PatchMapping("/user/auth")
+    @PatchMapping("/user/password")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Map<String, Boolean>> updatePassword(HttpServletRequest request,
                                                                @RequestBody Map<String, Object> userMap) {
@@ -121,7 +121,7 @@ public class UserController {
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
-    @DeleteMapping("/admin/{id}/auth")
+    @DeleteMapping("/user/{id}/auth")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Boolean>> deleteUser(@PathVariable Long id){
         userService.removeById(id);
