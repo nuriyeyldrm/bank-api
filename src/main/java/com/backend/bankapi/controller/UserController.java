@@ -38,8 +38,9 @@ public class UserController {
 
     @GetMapping("/user/auth/all")
     @PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
-    public ResponseEntity<List<User>> getAllUsers(){
-        List<User> users = userService.fetchAllUsers();
+    public ResponseEntity<List<User>> getAllUsers(HttpServletRequest request){
+        String ssn = (String) request.getAttribute("ssn");
+        List<User> users = userService.fetchAllUsers(ssn);
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
@@ -123,8 +124,9 @@ public class UserController {
 
     @DeleteMapping("/user/{id}/auth")
     @PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
-    public ResponseEntity<Map<String, Boolean>> deleteUser(@PathVariable Long id){
-        userService.removeById(id);
+    public ResponseEntity<Map<String, Boolean>> deleteUser(HttpServletRequest request, @PathVariable Long id){
+        String ssn = (String) request.getAttribute("ssn");
+        userService.removeById(id, ssn);
         Map<String, Boolean> map = new HashMap<>();
         map.put("success", true);
         return new ResponseEntity<>(map, HttpStatus.OK);

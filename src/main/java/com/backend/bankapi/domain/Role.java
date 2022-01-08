@@ -23,6 +23,10 @@ public class Role {
     @Column(length = 30)
     private UserRole name;
 
+    public Role(UserRole name) {
+        this.name = name;
+    }
+
     @Override
     public String toString() {
         return "" + name;

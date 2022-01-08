@@ -39,8 +39,16 @@ public class UserService {
 
     private final static String SSN_NOT_FOUND_MSG = "user with ssn %s not found";
 
-    public List<User> fetchAllUsers(){
-        return userRepository.findAll();
+    public List<User> fetchAllUsers(String ssn){
+        User admin = userRepository.findBySsn(ssn) .orElseThrow(() ->
+                new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
+
+        List<UserRole> rolesAdmin = getRoleList(admin);
+
+        if (rolesAdmin.contains(UserRole.ROLE_MANAGER))
+            return userRepository.findAll();
+        else
+            return userRepository.findAllByRole(UserRole.ROLE_CUSTOMER, admin.getId());
     }
 
     public User findById(Long id) throws ResourceNotFoundException {
@@ -173,14 +181,30 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void removeById(Long id) throws BadRequestException {
-        boolean userExists = userRepository.existsById(id);
+    public void removeById(Long id, String ssn) throws BadRequestException {
+        User admin = userRepository.findBySsn(ssn).orElseThrow(() ->
+                new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
-        if (!userExists){
-            throw new ResourceNotFoundException("user does not exist");
+        User user = userRepository.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, id)));
+
+        List<UserRole> rolesAdmin = getRoleList(admin);
+        List<UserRole> rolesUser = getRoleList(user);
+
+        if (rolesAdmin.contains(UserRole.ROLE_MANAGER) || (rolesAdmin.contains(UserRole.ROLE_EMPLOYEE) &&
+                (rolesUser.contains(UserRole.ROLE_CUSTOMER))))
+            userRepository.deleteById(id);
+
+        else
+            throw new BadRequestException("You don't have permission to delete user!");
+    }
+
+    private List<UserRole> getRoleList(User user) {
+        List<UserRole> roles = new ArrayList<>();
+        for (Role role: user.getRoles()){
+            roles.add(role.getName());
         }
-
-        userRepository.deleteById(id);
+        return roles;
     }
 
     public Set<Role> addRoles(Set<String> userRoles) {

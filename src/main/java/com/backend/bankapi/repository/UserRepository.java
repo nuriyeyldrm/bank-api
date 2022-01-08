@@ -2,6 +2,7 @@ package com.backend.bankapi.repository;
 
 import com.backend.bankapi.dao.UserDao;
 import com.backend.bankapi.domain.User;
+import com.backend.bankapi.domain.enumeration.UserRole;
 import com.backend.bankapi.exception.BadRequestException;
 import com.backend.bankapi.exception.ConflictException;
 import com.backend.bankapi.exception.ResourceNotFoundException;
@@ -11,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -20,6 +22,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<UserDao> findBySsnOrderById(String ssn) throws ResourceNotFoundException;
 
     Optional<User> findBySsn(String ssn) throws ResourceNotFoundException;
+
+    @Query("SELECT u from User u LEFT JOIN FETCH u.roles r WHERE r.name = ?1 or u.id = ?2")
+    List<User> findAllByRole(UserRole userRole, Long id);
 
     Boolean existsBySsn(String ssn) throws ConflictException;
 
