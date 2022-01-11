@@ -46,8 +46,10 @@ public class UserController {
 
     @GetMapping("/user/{id}/auth")
     @PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
-    public ResponseEntity<User> getUserById(@PathVariable Long id){
-        User user = userService.findById(id);
+    public ResponseEntity<User> getUserById(HttpServletRequest request,
+                                            @PathVariable Long id){
+        String ssn = (String) request.getAttribute("ssn");
+        User user = userService.findById(ssn, id);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 

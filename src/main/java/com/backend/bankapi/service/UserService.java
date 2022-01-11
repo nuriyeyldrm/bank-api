@@ -48,12 +48,24 @@ public class UserService {
         if (rolesAdmin.contains(UserRole.ROLE_MANAGER))
             return userRepository.findAll();
         else
-            return userRepository.findAllByRole(UserRole.ROLE_CUSTOMER, admin.getId());
+            return userRepository.findAllByRole(UserRole.ROLE_CUSTOMER);
     }
 
-    public User findById(Long id) throws ResourceNotFoundException {
-        return userRepository.findById(id)
+    public User findById(String ssn, Long id) throws ResourceNotFoundException {
+        User admin = userRepository.findBySsn(ssn) .orElseThrow(() ->
+                new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
+
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, id)));
+
+        List<UserRole> rolesAdmin = getRoleList(admin);
+        List<UserRole> rolesUser = getRoleList(user);
+
+        if (rolesAdmin.contains(UserRole.ROLE_MANAGER) || rolesUser.contains(UserRole.ROLE_CUSTOMER))
+            return user;
+
+        else
+            throw new BadRequestException(String.format("You dont have permission to access user with id %d", id));
     }
 
     public UserDao findBySsn(String ssn) throws ResourceNotFoundException {

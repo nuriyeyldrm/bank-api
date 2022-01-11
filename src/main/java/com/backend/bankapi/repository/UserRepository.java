@@ -23,8 +23,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findBySsn(String ssn) throws ResourceNotFoundException;
 
-    @Query("SELECT u from User u LEFT JOIN FETCH u.roles r WHERE r.name = ?1 or u.id = ?2")
-    List<User> findAllByRole(UserRole userRole, Long id);
+    @Query("SELECT u from User u LEFT JOIN FETCH u.roles r WHERE r.name = ?1")
+    List<User> findAllByRole(UserRole userRole);
 
     Boolean existsBySsn(String ssn) throws ConflictException;
 
