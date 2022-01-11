@@ -60,9 +60,25 @@ public class AccountService {
             return accountRepository.findAllByUserIdAndRole(user, UserRole.ROLE_CUSTOMER);
     }
 
-    public Account findByIdAuth(Long id) throws ResourceNotFoundException {
-        return accountRepository.findById(id)
+    public Account findByIdAuth(String ssn, Long id) throws ResourceNotFoundException {
+        User admin = userRepository.findBySsn(ssn) .orElseThrow(() ->
+                new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
+
+        Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, id)));
+
+        User user = userRepository.findById(account.getUserId().getId())
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG,
+                        account.getUserId().getId())));
+
+        List<UserRole> rolesAdmin = userService.getRoleList(admin);
+        List<UserRole> rolesUser = userService.getRoleList(user);
+
+        if (rolesAdmin.contains(UserRole.ROLE_MANAGER) || rolesUser.contains(UserRole.ROLE_CUSTOMER))
+            return account;
+
+        else
+            throw new BadRequestException(String.format("You dont have permission to access account with id %d", id));
     }
 
     public List<AccountDao> findAllBySsn(String ssn) throws ResourceNotFoundException {

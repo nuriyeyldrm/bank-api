@@ -44,8 +44,9 @@ public class AccountController {
 
     @GetMapping("/{id}/auth")
     @PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
-    public ResponseEntity<Account> getAccountById(@PathVariable Long id){
-        Account account = accountService.findByIdAuth(id);
+    public ResponseEntity<Account> getAccountById(HttpServletRequest request, @PathVariable Long id){
+        String ssn = (String) request.getAttribute("ssn");
+        Account account = accountService.findByIdAuth(ssn, id);
         return new ResponseEntity<>(account, HttpStatus.OK);
     }
 
