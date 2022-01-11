@@ -107,8 +107,9 @@ public class AccountController {
 
     @DeleteMapping("/{id}/auth")
     @PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
-    public ResponseEntity<Map<String, Boolean>> deleteAccount(@PathVariable Long id){
-        accountService.removeByAccountId(id);
+    public ResponseEntity<Map<String, Boolean>> deleteAccount(HttpServletRequest request, @PathVariable Long id){
+        String ssn = (String) request.getAttribute("ssn");
+        accountService.removeByAccountId(ssn, id);
         Map<String, Boolean> map = new HashMap<>();
         map.put("success", true);
         return new ResponseEntity<>(map, HttpStatus.OK);

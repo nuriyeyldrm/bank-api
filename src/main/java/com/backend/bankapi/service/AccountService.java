@@ -153,7 +153,8 @@ public class AccountService {
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, id)));
 
         User user = userRepository.findById(acc.getUserId().getId())
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, id)));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG,
+                        acc.getUserId().getId())));
 
         List<UserRole> rolesAdmin = userService.getRoleList(admin);
         List<UserRole> rolesUser = userService.getRoleList(user);
@@ -182,19 +183,32 @@ public class AccountService {
             throw new BadRequestException(String.format("You dont have permission to update account with id %d", id));
     }
 
-    public void removeByAccountId(Long id) throws ResourceNotFoundException {
+    public void removeByAccountId(String ssn, Long id) throws ResourceNotFoundException {
+        User admin = userRepository.findBySsn(ssn).orElseThrow(() ->
+                new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
+
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, id)));
 
+        User user = userRepository.findById(account.getUserId().getId()).orElseThrow(() ->
+                new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, account.getUserId().getId())));
+
+        List<UserRole> rolesAdmin = userService.getRoleList(admin);
+        List<UserRole> rolesUser = userService.getRoleList(user);
+
         List<Transfer> transfer = transferRepository.findAllByFromAccountId(account);
+        if (rolesAdmin.contains(UserRole.ROLE_MANAGER) || (rolesAdmin.contains(UserRole.ROLE_EMPLOYEE) &&
+                (rolesUser.contains(UserRole.ROLE_CUSTOMER)))) {
 
-        if (!transfer.isEmpty())
-            transferRepository.deleteAllByFromAccountId(account);
+            if (!transfer.isEmpty())
+                transferRepository.deleteAllByFromAccountId(account);
 
-        else {
-            accModifyInformationRepository.deleteById(account.getAccModInfId().getId());
-            accountRepository.deleteById(id);
+            else {
+                accModifyInformationRepository.deleteById(account.getAccModInfId().getId());
+                accountRepository.deleteById(id);
+            }
         }
-
+        else
+            throw new BadRequestException("You don't have permission to delete account!");
     }
 }
