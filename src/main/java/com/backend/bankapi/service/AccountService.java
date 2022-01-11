@@ -146,18 +146,24 @@ public class AccountService {
 
 
     public void updateAccountAuth(String ssn, Long id, Account account) throws BadRequestException {
-        User user = userRepository.findBySsn(ssn)
+        User admin = userRepository.findBySsn(ssn)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
         Account acc = accountRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, id)));
 
+        User user = userRepository.findById(acc.getUserId().getId())
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, id)));
+
+        List<UserRole> rolesAdmin = userService.getRoleList(admin);
+        List<UserRole> rolesUser = userService.getRoleList(user);
+
         Timestamp closedDate = null;
         if (account.getAccountStatusType().equals(AccountStatusType.CLOSED))
             closedDate = accountModifyInformation.setDate();
 
-        String lastModifiedBy = accountModifyInformation.setModifiedBy(user.getFirstName(), user.getLastName(),
-                user.getRoles());
+        String lastModifiedBy = accountModifyInformation.setModifiedBy(admin.getFirstName(), admin.getLastName(),
+                admin.getRoles());
 
         Timestamp lastModifiedDate = accountModifyInformation.setDate();
 
@@ -170,7 +176,10 @@ public class AccountService {
         account.setId(id);
         account.setAccModInfId(accountModifyInformation);
 
-        accountRepository.save(account);
+        if (rolesAdmin.contains(UserRole.ROLE_MANAGER) || rolesUser.contains(UserRole.ROLE_CUSTOMER))
+            accountRepository.save(account);
+        else
+            throw new BadRequestException(String.format("You dont have permission to update account with id %d", id));
     }
 
     public void removeByAccountId(Long id) throws ResourceNotFoundException {
