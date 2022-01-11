@@ -230,7 +230,7 @@ public class UserService {
             throw new BadRequestException("You don't have permission to delete user!");
     }
 
-    private List<UserRole> getRoleList(User user) {
+    public List<UserRole> getRoleList(User user) {
         List<UserRole> roles = new ArrayList<>();
         for (Role role: user.getRoles()){
             roles.add(role.getName());

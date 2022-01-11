@@ -27,21 +27,22 @@ public class AccountController {
     public AccountService accountService;
 
     @GetMapping("/auth/all")
-    @PreAuthorize("hasRole('MANAGER')")
-    public ResponseEntity<List<Account>> getAllAccounts(){
-        List<Account> accounts = accountService.fetchAllAccounts();
+    @PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
+    public ResponseEntity<List<Account>> getAllAccounts(HttpServletRequest request){
+        String ssn = (String) request.getAttribute("ssn");
+        List<Account> accounts = accountService.fetchAllAccounts(ssn);
         return new ResponseEntity<>(accounts, HttpStatus.OK);
     }
 
     @GetMapping("/user/{userId}/auth")
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
     public ResponseEntity<List<Account>> getAccountsByUserId(@PathVariable Long userId){
         List<Account> account = accountService.findAllByUserId(userId);
         return new ResponseEntity<>(account, HttpStatus.OK);
     }
 
     @GetMapping("/{id}/auth")
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
     public ResponseEntity<Account> getAccountById(@PathVariable Long id){
         Account account = accountService.findByIdAuth(id);
         return new ResponseEntity<>(account, HttpStatus.OK);

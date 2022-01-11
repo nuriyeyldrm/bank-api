@@ -3,6 +3,7 @@ package com.backend.bankapi.service;
 import com.backend.bankapi.dao.AccountDao;
 import com.backend.bankapi.domain.*;
 import com.backend.bankapi.domain.enumeration.AccountStatusType;
+import com.backend.bankapi.domain.enumeration.UserRole;
 import com.backend.bankapi.exception.BadRequestException;
 import com.backend.bankapi.exception.ResourceNotFoundException;
 import com.backend.bankapi.repository.AccModifyInformationRepository;
@@ -23,14 +24,24 @@ public class AccountService {
     private final UserRepository userRepository;
     private final TransferRepository transferRepository;
     private final AccModifyInformationRepository accModifyInformationRepository;
+    private final UserService userService;
     private final AccountModifyInformation accountModifyInformation = new AccountModifyInformation();
 
     private final static String ACCOUNT_NOT_FOUND_MSG = "account with id %d not found";
     private final static String SSN_NOT_FOUND_MSG = "account with ssn %s not found";
     private final static String USER_NOT_FOUND_MSG = "user with id %d not found";
 
-    public List<Account> fetchAllAccounts(){
-        return accountRepository.findAll();
+    public List<Account> fetchAllAccounts(String ssn){
+        User admin = userRepository.findBySsn(ssn) .orElseThrow(() ->
+                new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
+
+        List<UserRole> rolesAdmin = userService.getRoleList(admin);
+
+        if (rolesAdmin.contains(UserRole.ROLE_MANAGER))
+            return accountRepository.findAll();
+
+        else
+            return accountRepository.findAllByRole(UserRole.ROLE_CUSTOMER);
     }
 
     public List<Account> findAllByUserId(Long userId) throws ResourceNotFoundException {
