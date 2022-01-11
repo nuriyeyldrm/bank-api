@@ -26,6 +26,12 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     @Query("SELECT a from Account a " +
             "LEFT JOIN FETCH a.userId u " +
             "LEFT JOIN FETCH u.roles r " +
+            "WHERE a.userId = ?1 and r.name = ?2")
+    List<Account> findAllByUserIdAndRole(User user, UserRole userRole) throws ResourceNotFoundException;
+
+    @Query("SELECT a from Account a " +
+            "LEFT JOIN FETCH a.userId u " +
+            "LEFT JOIN FETCH u.roles r " +
             "WHERE r.name = ?1")
     List<Account> findAllByRole(UserRole userRole);
 

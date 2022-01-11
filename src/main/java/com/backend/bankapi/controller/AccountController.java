@@ -36,8 +36,9 @@ public class AccountController {
 
     @GetMapping("/user/{userId}/auth")
     @PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
-    public ResponseEntity<List<Account>> getAccountsByUserId(@PathVariable Long userId){
-        List<Account> account = accountService.findAllByUserId(userId);
+    public ResponseEntity<List<Account>> getAccountsByUserId(HttpServletRequest request, @PathVariable Long userId){
+        String ssn = (String) request.getAttribute("ssn");
+        List<Account> account = accountService.findAllByUserId(ssn, userId);
         return new ResponseEntity<>(account, HttpStatus.OK);
     }
 

@@ -44,11 +44,20 @@ public class AccountService {
             return accountRepository.findAllByRole(UserRole.ROLE_CUSTOMER);
     }
 
-    public List<Account> findAllByUserId(Long userId) throws ResourceNotFoundException {
+    public List<Account> findAllByUserId(String ssn, Long userId) throws ResourceNotFoundException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, userId)));
 
-        return accountRepository.findAllByUserId(user);
+        User admin = userRepository.findBySsn(ssn) .orElseThrow(() ->
+                new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
+
+        List<UserRole> rolesAdmin = userService.getRoleList(admin);
+        List<UserRole> rolesUser = userService.getRoleList(user);
+
+        if (rolesAdmin.contains(UserRole.ROLE_MANAGER) || rolesUser.contains(UserRole.ROLE_CUSTOMER))
+            return accountRepository.findAllByUserId(user);
+        else
+            return accountRepository.findAllByUserIdAndRole(user, UserRole.ROLE_CUSTOMER);
     }
 
     public Account findByIdAuth(Long id) throws ResourceNotFoundException {
