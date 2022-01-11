@@ -146,6 +146,7 @@ public class UserService {
     public void updateUserAuth(String adminSsn, Long id, AdminDao adminDao) throws BadRequestException {
 
         boolean emailExists = userRepository.existsByEmail(adminDao.getEmail());
+        boolean ssnExists = userRepository.existsBySsn(adminDao.getSsn());
 
         User userDetails = userRepository.findById(id) .orElseThrow(() ->
                 new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, id)));
@@ -156,6 +157,13 @@ public class UserService {
         if (emailExists && !adminDao.getEmail().equals(userDetails.getEmail())){
             throw new ConflictException("Error: Email is already in use!");
         }
+
+        if (ssnExists && !adminDao.getSsn().equals(userDetails.getSsn())){
+            throw new ConflictException("Error: Ssn is already in use!");
+        }
+
+        List<UserRole> rolesAdmin = getRoleList(adminDetails);
+        List<UserRole> rolesUser = getRoleList(userDetails);
 
         String encodedPassword = passwordEncoder.encode(adminDao.getPassword());
 
@@ -174,9 +182,20 @@ public class UserService {
 
         modifyInfRepository.save(modifyInformation);
 
-        User user = new User(id, userDetails.getSsn(), adminDao.getFirstName(), adminDao.getLastName(),
-                adminDao.getEmail(), adminDao.getPassword(), adminDao.getAddress(), adminDao.getMobilePhoneNumber(),
-                userDetails.getModInfId(), roles);
+        User user;
+
+        if (rolesAdmin.contains(UserRole.ROLE_MANAGER)) {
+            user = new User(id, adminDao.getSsn(), adminDao.getFirstName(), adminDao.getLastName(),
+                    adminDao.getEmail(), adminDao.getPassword(), adminDao.getAddress(), adminDao.getMobilePhoneNumber(),
+                    userDetails.getModInfId(), roles);
+        }
+        else if (rolesUser.contains(UserRole.ROLE_CUSTOMER)){
+            user = new User(id, adminDao.getSsn(), adminDao.getFirstName(), adminDao.getLastName(),
+                    adminDao.getEmail(), adminDao.getPassword(), adminDao.getAddress(), adminDao.getMobilePhoneNumber(),
+                    userDetails.getModInfId(), userDetails.getRoles());
+        }
+        else
+            throw new BadRequestException(String.format("You dont have permission to update user with id %d", id));
 
         userRepository.save(user);
     }

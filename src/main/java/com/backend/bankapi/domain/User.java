@@ -87,4 +87,17 @@ public class User implements Serializable {
         this.modInfId = modInfId;
         this.roles = roles;
     }
+
+    public User(Long id, String ssn, String firstName, String lastName, String email, String password,
+                String address, String mobilePhoneNumber, ModifyInformation modInfId) {
+        this.id = id;
+        this.ssn = ssn;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.address = address;
+        this.mobilePhoneNumber = mobilePhoneNumber;
+        this.modInfId = modInfId;
+    }
 }
