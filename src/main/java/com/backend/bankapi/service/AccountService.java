@@ -185,7 +185,7 @@ public class AccountService {
             throw new BadRequestException(String.format("You dont have permission to update account with id %d", id));
     }
 
-    public void removeByAccountId(String ssn, Long id) throws ResourceNotFoundException {
+    public void removeByAccountIdAuth(String ssn, Long id) throws ResourceNotFoundException {
         User admin = userRepository.findBySsn(ssn).orElseThrow(() ->
                 new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
@@ -212,5 +212,24 @@ public class AccountService {
         }
         else
             throw new BadRequestException("You don't have permission to delete account!");
+    }
+
+
+    public void removeByAccountId(String ssn, Long id) throws BadRequestException {
+        User user = userRepository.findBySsn(ssn).orElseThrow(() ->
+                new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
+
+        Account account = accountRepository.findByIdAndUserId(id, user)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, id)));
+
+        List<Transfer> transfer = transferRepository.findAllByFromAccountId(account);
+
+        if (!transfer.isEmpty())
+            throw new BadRequestException("You cannot delete account because of existing of transfer!");
+
+        else {
+            accModifyInformationRepository.deleteById(account.getAccModInfId().getId());
+            accountRepository.deleteById(id);
+        }
     }
 }
