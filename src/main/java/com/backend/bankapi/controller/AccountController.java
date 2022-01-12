@@ -69,13 +69,14 @@ public class AccountController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('CUSTOMER') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
-    public ResponseEntity<Map<String, Boolean>> createAccount(HttpServletRequest request,
+    public ResponseEntity<Map<String, Object>> createAccount(HttpServletRequest request,
                                                               @Valid @RequestBody Account account) {
         String ssn = (String) request.getAttribute("ssn");
-        accountService.add(ssn, account);
+        Long accId = accountService.add(ssn, account);
 
-        Map<String, Boolean> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
         map.put("Account created successfully!", true);
+        map.put("AccountId", accId);
         return new ResponseEntity<>(map, HttpStatus.CREATED);
     }
 

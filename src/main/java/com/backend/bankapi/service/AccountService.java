@@ -96,7 +96,7 @@ public class AccountService {
                 new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, id)));
     }
 
-    public void add(String ssn, Account account) throws BadRequestException {
+    public Long add(String ssn, Account account) throws BadRequestException {
         User user = userRepository.findBySsn(ssn)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
@@ -114,6 +114,8 @@ public class AccountService {
         account.setUserId(user);
 
         accountRepository.save(account);
+
+        return account.getId();
     }
 
     public void updateAccount(String ssn, Long id, Account account) throws BadRequestException {
