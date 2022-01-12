@@ -1,5 +1,6 @@
 package com.backend.bankapi.service;
 
+import com.backend.bankapi.domain.enumeration.UserRole;
 import com.backend.bankapi.projection.ProjectTransferAdmin;
 import com.backend.bankapi.projection.ProjectTransfer;
 import com.backend.bankapi.dao.TransferDao;
@@ -26,26 +27,59 @@ public class TransferService {
     private final AccountRepository accountRepository;
     private final TransferRepository transferRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
 
     private final static String SSN_NOT_FOUND_MSG = "user with ssn %s not found";
     private final static String USER_NOT_FOUND_MSG = "user with id %d not found";
     private final static String ACCOUNT_NOT_FOUND_MSG = "account with id %s not found";
     private final static String TRANSFER_NOT_FOUND_MSG = "transfer with id %d not found";
 
-    public List<ProjectTransferAdmin> fetchAllTransfers(){
-        return transferRepository.findAllBy();
+    public List<ProjectTransferAdmin> fetchAllTransfers(String ssn){
+        User admin = userRepository.findBySsn(ssn).orElseThrow(() ->
+                new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
+
+        List<UserRole> rolesAdmin = userService.getRoleList(admin);
+
+        if (rolesAdmin.contains(UserRole.ROLE_MANAGER))
+            return transferRepository.findAllBy();
+        else
+            return transferRepository.findAllByRole(UserRole.ROLE_CUSTOMER);
     }
 
-    public List<ProjectTransferAdmin> findByUserId(Long userId) throws ResourceNotFoundException {
+    public List<ProjectTransferAdmin> findByUserId(String ssn, Long userId) throws ResourceNotFoundException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, userId)));
 
-        return transferRepository.findAllByUserIdOrderById(user);
+        User admin = userRepository.findBySsn(ssn)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
+
+        List<UserRole> rolesAdmin = userService.getRoleList(admin);
+        List<UserRole> rolesUser = userService.getRoleList(user);
+
+        if (rolesAdmin.contains(UserRole.ROLE_MANAGER) || rolesUser.contains(UserRole.ROLE_CUSTOMER))
+            return transferRepository.findAllByUserIdOrderById(user);
+        else
+            return transferRepository.findAllByUserIdAndRole(user, UserRole.ROLE_CUSTOMER);
     }
 
-    public ProjectTransferAdmin findByIdAuth(Long id) throws ResourceNotFoundException {
-        return transferRepository.findByIdOrderById(id)
+    public ProjectTransferAdmin findByIdAuth(String ssn, Long id) throws ResourceNotFoundException {
+        User admin = userRepository.findBySsn(ssn)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
+
+        ProjectTransferAdmin transfer = transferRepository.findByIdOrderById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(TRANSFER_NOT_FOUND_MSG, id)));
+
+        User user = userRepository.findById(transfer.getUserId().getId())
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG,
+                        transfer.getUserId().getId())));
+
+        List<UserRole> rolesAdmin = userService.getRoleList(admin);
+        List<UserRole> rolesUser = userService.getRoleList(user);
+
+        if (rolesAdmin.contains(UserRole.ROLE_MANAGER) || rolesUser.contains(UserRole.ROLE_CUSTOMER))
+            return transfer;
+        else
+            throw new BadRequestException(String.format("You dont have permission to access transfer with id %d", id));
     }
 
     public List<ProjectTransfer> findAllBySsn(String ssn) throws ResourceNotFoundException {
