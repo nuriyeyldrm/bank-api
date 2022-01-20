@@ -49,7 +49,7 @@ public class UserDao {
     public UserDao(User user) {
         this.ssn = user.getSsn();
         this.firstName = user.getFirstName();
-        this.lastName = user.getMobilePhoneNumber();
+        this.lastName = user.getLastName();
         this.email = user.getEmail();
         this.address = user.getAddress();
         this.mobilePhoneNumber = user.getMobilePhoneNumber();
