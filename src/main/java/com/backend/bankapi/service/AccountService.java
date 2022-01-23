@@ -129,7 +129,10 @@ public class AccountService {
         return account.getAccountNo().getId();
     }
 
-    public Long addAuth(Long userId, Account account) throws BadRequestException {
+    public Long addAuth(String ssn, Long userId, Account account) throws BadRequestException {
+        User admin = userRepository.findBySsn(ssn)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, userId)));
 
@@ -141,6 +144,9 @@ public class AccountService {
         AccountModifyInformation accountModifyInformation = new AccountModifyInformation(createdBy, createdDate,
                 createdBy, createdDate);
 
+        List<UserRole> rolesAdmin = userService.getRoleList(admin);
+        List<UserRole> rolesUser = userService.getRoleList(user);
+
         accModifyInformationRepository.save(accountModifyInformation);
 
         account.setAccModInfId(accountModifyInformation);
@@ -148,10 +154,16 @@ public class AccountService {
         account.setAccountStatusType(AccountStatusType.ACTIVE);
 
         AccountNumber accountNumber = new AccountNumber();
-        accountNumberRepository.save(accountNumber);
-        account.setAccountNo(accountNumber);
 
-        accountRepository.save(account);
+        if (rolesAdmin.contains(UserRole.ROLE_MANAGER) || rolesUser.contains(UserRole.ROLE_CUSTOMER)){
+            accountNumberRepository.save(accountNumber);
+            account.setAccountNo(accountNumber);
+            accountRepository.save(account);
+        }
+
+        else
+            throw new BadRequestException(String.format("You dont have permission to create " +
+                    "user with userId %d", userId));
 
         return account.getAccountNo().getId();
     }
