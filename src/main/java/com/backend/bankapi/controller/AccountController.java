@@ -1,6 +1,7 @@
 package com.backend.bankapi.controller;
 
 import com.backend.bankapi.dao.AccountDao;
+import com.backend.bankapi.dao.AdminAccountDao;
 import com.backend.bankapi.domain.Account;
 import com.backend.bankapi.service.AccountService;
 import lombok.AllArgsConstructor;
@@ -28,25 +29,25 @@ public class AccountController {
 
     @GetMapping("/auth/all")
     @PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
-    public ResponseEntity<List<Account>> getAllAccounts(HttpServletRequest request){
+    public ResponseEntity<List<AdminAccountDao>> getAllAccounts(HttpServletRequest request){
         String ssn = (String) request.getAttribute("ssn");
-        List<Account> accounts = accountService.fetchAllAccounts(ssn);
+        List<AdminAccountDao> accounts = accountService.fetchAllAccounts(ssn);
         return new ResponseEntity<>(accounts, HttpStatus.OK);
     }
 
     @GetMapping("/user/{userId}/auth")
     @PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
-    public ResponseEntity<List<Account>> getAccountsByUserId(HttpServletRequest request, @PathVariable Long userId){
+    public ResponseEntity<List<AdminAccountDao>> getAccountsByUserId(HttpServletRequest request, @PathVariable Long userId){
         String ssn = (String) request.getAttribute("ssn");
-        List<Account> account = accountService.findAllByUserId(ssn, userId);
+        List<AdminAccountDao> account = accountService.findAllByUserId(ssn, userId);
         return new ResponseEntity<>(account, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}/auth")
+    @GetMapping("/{accountNo}/auth")
     @PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
-    public ResponseEntity<Account> getAccountById(HttpServletRequest request, @PathVariable Long id){
+    public ResponseEntity<AdminAccountDao> getAccountByAccountNo(HttpServletRequest request, @PathVariable Long accountNo){
         String ssn = (String) request.getAttribute("ssn");
-        Account account = accountService.findByIdAuth(ssn, id);
+        AdminAccountDao account = accountService.findByAccountNoAuth(ssn, accountNo);
         return new ResponseEntity<>(account, HttpStatus.OK);
     }
 
@@ -58,12 +59,12 @@ public class AccountController {
         return new ResponseEntity<>(account, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}/user")
+    @GetMapping("/{accountNo}/user")
     @PreAuthorize("hasRole('CUSTOMER') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
-    public ResponseEntity<AccountDao> getAccountBySsnId(@PathVariable Long id,
+    public ResponseEntity<AccountDao> getAccountBySsnAccountNo(@PathVariable Long accountNo,
                                                         HttpServletRequest request){
         String ssn = (String) request.getAttribute("ssn");
-        AccountDao account = accountService.findBySsnId(id, ssn);
+        AccountDao account = accountService.findBySsnAccountNo(accountNo, ssn);
         return new ResponseEntity<>(account, HttpStatus.OK);
     }
 
@@ -106,21 +107,21 @@ public class AccountController {
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}/auth")
+    @DeleteMapping("/{accountNo}/auth")
     @PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
-    public ResponseEntity<Map<String, Boolean>> deleteAccountAuth(HttpServletRequest request, @PathVariable Long id){
+    public ResponseEntity<Map<String, Boolean>> deleteAccountAuth(HttpServletRequest request, @PathVariable Long accountNo){
         String ssn = (String) request.getAttribute("ssn");
-        accountService.removeByAccountIdAuth(ssn, id);
+        accountService.removeByAccountIdAuth(ssn, accountNo);
         Map<String, Boolean> map = new HashMap<>();
         map.put("success", true);
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{accountNo}")
     @PreAuthorize("hasRole('CUSTOMER') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
-    public ResponseEntity<Map<String, Boolean>> deleteAccount(HttpServletRequest request, @PathVariable Long id){
+    public ResponseEntity<Map<String, Boolean>> deleteAccount(HttpServletRequest request, @PathVariable Long accountNo){
         String ssn = (String) request.getAttribute("ssn");
-        accountService.removeByAccountId(ssn, id);
+        accountService.removeByAccountId(ssn, accountNo);
         Map<String, Boolean> map = new HashMap<>();
         map.put("success", true);
         return new ResponseEntity<>(map, HttpStatus.OK);

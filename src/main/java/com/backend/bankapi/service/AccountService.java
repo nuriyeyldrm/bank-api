@@ -1,15 +1,13 @@
 package com.backend.bankapi.service;
 
 import com.backend.bankapi.dao.AccountDao;
+import com.backend.bankapi.dao.AdminAccountDao;
 import com.backend.bankapi.domain.*;
 import com.backend.bankapi.domain.enumeration.AccountStatusType;
 import com.backend.bankapi.domain.enumeration.UserRole;
 import com.backend.bankapi.exception.BadRequestException;
 import com.backend.bankapi.exception.ResourceNotFoundException;
-import com.backend.bankapi.repository.AccModifyInformationRepository;
-import com.backend.bankapi.repository.AccountRepository;
-import com.backend.bankapi.repository.TransferRepository;
-import com.backend.bankapi.repository.UserRepository;
+import com.backend.bankapi.repository.*;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +19,7 @@ import java.util.List;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final AccountNumberRepository accountNumberRepository;
     private final UserRepository userRepository;
     private final TransferRepository transferRepository;
     private final AccModifyInformationRepository accModifyInformationRepository;
@@ -28,23 +27,24 @@ public class AccountService {
     private final AccountModifyInformation accountModifyInformation = new AccountModifyInformation();
 
     private final static String ACCOUNT_NOT_FOUND_MSG = "account with id %d not found";
+    private final static String ACCOUNT_NO_NOT_FOUND_MSG = "account with accountNo %d not found";
     private final static String SSN_NOT_FOUND_MSG = "account with ssn %s not found";
     private final static String USER_NOT_FOUND_MSG = "user with id %d not found";
 
-    public List<Account> fetchAllAccounts(String ssn){
+    public List<AdminAccountDao> fetchAllAccounts(String ssn){
         User admin = userRepository.findBySsn(ssn) .orElseThrow(() ->
                 new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
         List<UserRole> rolesAdmin = userService.getRoleList(admin);
 
         if (rolesAdmin.contains(UserRole.ROLE_MANAGER))
-            return accountRepository.findAll();
+            return accountRepository.findAllByOrderById();
 
         else
             return accountRepository.findAllByRole(UserRole.ROLE_CUSTOMER);
     }
 
-    public List<Account> findAllByUserId(String ssn, Long userId) throws ResourceNotFoundException {
+    public List<AdminAccountDao> findAllByUserId(String ssn, Long userId) throws ResourceNotFoundException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, userId)));
 
@@ -60,16 +60,19 @@ public class AccountService {
             return accountRepository.findAllByUserIdAndRole(user, UserRole.ROLE_CUSTOMER);
     }
 
-    public Account findByIdAuth(String ssn, Long id) throws ResourceNotFoundException {
+    public AdminAccountDao findByAccountNoAuth(String ssn, Long accountNo) throws ResourceNotFoundException {
         User admin = userRepository.findBySsn(ssn) .orElseThrow(() ->
                 new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
-        Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, id)));
+        AccountNumber accountNumber = accountNumberRepository.findById(accountNo)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NO_NOT_FOUND_MSG, accountNo)));
 
-        User user = userRepository.findById(account.getUserId().getId())
+        AdminAccountDao account = accountRepository.findByAccountNoOrderById(accountNumber)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NO_NOT_FOUND_MSG, accountNo)));
+
+        User user = userRepository.findById(account.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG,
-                        account.getUserId().getId())));
+                        account.getUserId())));
 
         List<UserRole> rolesAdmin = userService.getRoleList(admin);
         List<UserRole> rolesUser = userService.getRoleList(user);
@@ -78,7 +81,8 @@ public class AccountService {
             return account;
 
         else
-            throw new BadRequestException(String.format("You dont have permission to access account with id %d", id));
+            throw new BadRequestException(String.format("You dont have permission to access account " +
+                    "with accountNo %d", accountNo));
     }
 
     public List<AccountDao> findAllBySsn(String ssn) throws ResourceNotFoundException {
@@ -88,12 +92,15 @@ public class AccountService {
         return accountRepository.findAllByUserIdOrderById(user);
     }
 
-    public AccountDao findBySsnId(Long id, String ssn) throws ResourceNotFoundException {
+    public AccountDao findBySsnAccountNo(Long accountNo, String ssn) throws ResourceNotFoundException {
         User user = userRepository.findBySsn(ssn)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
-        return accountRepository.findByIdAndUserIdOrderById(id, user).orElseThrow(() ->
-                new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, id)));
+        AccountNumber accountNumber = accountNumberRepository.findById(accountNo)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NO_NOT_FOUND_MSG, accountNo)));
+
+        return accountRepository.findByAccountNoAndUserIdOrderById(accountNumber, user).orElseThrow(() ->
+                new ResourceNotFoundException(String.format(ACCOUNT_NO_NOT_FOUND_MSG, accountNo)));
     }
 
     public Long add(String ssn, Account account) throws BadRequestException {
@@ -112,6 +119,10 @@ public class AccountService {
 
         account.setAccModInfId(accountModifyInformation);
         account.setUserId(user);
+
+        AccountNumber accountNumber = new AccountNumber();
+        accountNumberRepository.save(accountNumber);
+        account.setAccountNo(accountNumber);
 
         accountRepository.save(account);
 
@@ -142,6 +153,7 @@ public class AccountService {
         account.setUserId(user);
         account.setId(id);
         account.setAccModInfId(accountModifyInformation);
+        account.setAccountNo(acc.getAccountNo());
 
         accountRepository.save(account);
     }
@@ -185,12 +197,15 @@ public class AccountService {
             throw new BadRequestException(String.format("You dont have permission to update account with id %d", id));
     }
 
-    public void removeByAccountIdAuth(String ssn, Long id) throws ResourceNotFoundException {
+    public void removeByAccountIdAuth(String ssn, Long accountNo) throws ResourceNotFoundException {
         User admin = userRepository.findBySsn(ssn).orElseThrow(() ->
                 new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
-        Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, id)));
+        AccountNumber accountNumber = accountNumberRepository.findById(accountNo)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NO_NOT_FOUND_MSG, accountNo)));
+
+        Account account = accountRepository.findByAccountNo(accountNumber)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NO_NOT_FOUND_MSG, accountNo)));
 
         User user = userRepository.findById(account.getUserId().getId()).orElseThrow(() ->
                 new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, account.getUserId().getId())));
@@ -207,7 +222,7 @@ public class AccountService {
 
             else {
                 accModifyInformationRepository.deleteById(account.getAccModInfId().getId());
-                accountRepository.deleteById(id);
+                accountRepository.deleteById(account.getId());
             }
         }
         else
@@ -215,12 +230,15 @@ public class AccountService {
     }
 
 
-    public void removeByAccountId(String ssn, Long id) throws BadRequestException {
+    public void removeByAccountId(String ssn, Long accountNo) throws BadRequestException {
         User user = userRepository.findBySsn(ssn).orElseThrow(() ->
                 new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
-        Account account = accountRepository.findByIdAndUserId(id, user)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, id)));
+        AccountNumber accountNumber = accountNumberRepository.findById(accountNo)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NO_NOT_FOUND_MSG, accountNo)));
+
+        Account account = accountRepository.findByAccountNoAndUserId(accountNumber, user)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NO_NOT_FOUND_MSG, accountNo)));
 
         List<Transfer> transfer = transferRepository.findAllByFromAccountId(account);
 
@@ -229,7 +247,7 @@ public class AccountService {
 
         else {
             accModifyInformationRepository.deleteById(account.getAccModInfId().getId());
-            accountRepository.deleteById(id);
+            accountRepository.deleteById(account.getId());
         }
     }
 }

@@ -26,6 +26,10 @@ public class Account implements Serializable {
     private Long id;
 
     @OneToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "account_no", referencedColumnName = "id", unique = true, nullable = false)
+    private AccountNumber accountNo;
+
+    @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User userId;
 

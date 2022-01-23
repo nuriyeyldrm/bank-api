@@ -1,7 +1,9 @@
 package com.backend.bankapi.repository;
 
 import com.backend.bankapi.dao.AccountDao;
+import com.backend.bankapi.dao.AdminAccountDao;
 import com.backend.bankapi.domain.Account;
+import com.backend.bankapi.domain.AccountNumber;
 import com.backend.bankapi.domain.User;
 import com.backend.bankapi.domain.enumeration.UserRole;
 import com.backend.bankapi.exception.ResourceNotFoundException;
@@ -19,21 +21,29 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     Optional<Account> findByIdAndUserId(Long id, User userId) throws ResourceNotFoundException;
 
-    Optional<AccountDao> findByIdAndUserIdOrderById(Long id, User user) throws ResourceNotFoundException;
+    Optional<Account> findByAccountNoAndUserId(AccountNumber accountNo, User userId) throws ResourceNotFoundException;
 
-    List<Account> findAllByUserId(User user) throws ResourceNotFoundException;
+    Optional<Account> findByAccountNo(AccountNumber accountNo) throws ResourceNotFoundException;
+
+    Optional<AdminAccountDao> findByAccountNoOrderById(AccountNumber accountNo) throws ResourceNotFoundException;
+
+    Optional<AccountDao> findByAccountNoAndUserIdOrderById(AccountNumber accountNo, User user) throws ResourceNotFoundException;
+
+    List<AdminAccountDao> findAllByOrderById();
+
+    List<AdminAccountDao> findAllByUserId(User user) throws ResourceNotFoundException;
 
     @Query("SELECT a from Account a " +
             "LEFT JOIN FETCH a.userId u " +
             "LEFT JOIN FETCH u.roles r " +
             "WHERE a.userId = ?1 and r.name = ?2")
-    List<Account> findAllByUserIdAndRole(User user, UserRole userRole) throws ResourceNotFoundException;
+    List<AdminAccountDao> findAllByUserIdAndRole(User user, UserRole userRole) throws ResourceNotFoundException;
 
     @Query("SELECT a from Account a " +
             "LEFT JOIN FETCH a.userId u " +
             "LEFT JOIN FETCH u.roles r " +
             "WHERE r.name = ?1")
-    List<Account> findAllByRole(UserRole userRole);
+    List<AdminAccountDao> findAllByRole(UserRole userRole);
 
     List<AccountDao> findAllByUserIdOrderById(User user) throws ResourceNotFoundException;
 }

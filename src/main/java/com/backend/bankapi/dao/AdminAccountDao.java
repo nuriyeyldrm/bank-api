@@ -17,11 +17,13 @@ import java.sql.Timestamp;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccountDao {
+public class AdminAccountDao {
 
     private Long id;
 
     private Long accountNo;
+
+    private Long userId;
 
     @Size(max = 250, message = "Size exceeded")
     @NotNull(message = "Please write description")
@@ -43,9 +45,10 @@ public class AccountDao {
 
     private Timestamp closedDate;
 
-    public AccountDao(Account account) {
+    public AdminAccountDao(Account account) {
         this.id = account.getId();
         this.accountNo = account.getAccountNo().getId();
+        this.userId = account.getUserId().getId();
         this.description = account.getDescription();
         this.balance = account.getBalance();
         this.currencyCode = account.getCurrencyCode();

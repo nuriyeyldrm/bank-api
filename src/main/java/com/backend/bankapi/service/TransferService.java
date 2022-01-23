@@ -100,11 +100,11 @@ public class TransferService {
         User user = userRepository.findBySsn(ssn)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
-        Account fromAccount = accountRepository.findByIdAndUserId(transfer.getFromAccountId(), user)
+        Account fromAccount = accountRepository.findByAccountNoAndUserId(transfer.getFromAccountId(), user)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         String.format(ACCOUNT_NOT_FOUND_MSG, transfer.getFromAccountId())));
 
-        Account toAccount = accountRepository.findById(transfer.getToAccountId())
+        Account toAccount = accountRepository.findByAccountNo(transfer.getToAccountId())
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG,
                         transfer.getToAccountId())));
 
@@ -133,7 +133,7 @@ public class TransferService {
         long time = date.getTime();
         Timestamp transactionDate = new Timestamp(time);
 
-        Transfer transfer1 = new Transfer(fromAccount, transfer.getToAccountId(), user,
+        Transfer transfer1 = new Transfer(fromAccount, transfer.getToAccountId().getId(), user,
                 transfer.getTransactionAmount(), newFromBalance, transfer.getCurrencyCode(),
                 transactionDate, transfer.getDescription());
 

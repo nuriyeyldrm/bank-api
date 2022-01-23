@@ -1,5 +1,6 @@
 package com.backend.bankapi.dao;
 
+import com.backend.bankapi.domain.AccountNumber;
 import com.backend.bankapi.domain.User;
 import com.backend.bankapi.domain.enumeration.CurrencyCode;
 import lombok.AllArgsConstructor;
@@ -20,10 +21,10 @@ public class TransferDao {
     private Long id;
 
     @NotNull(message = "Please write correct receiver account id")
-    private Long fromAccountId;
+    private AccountNumber fromAccountId;
 
     @NotNull(message = "Please write correct sender account id")
-    private Long toAccountId;
+    private AccountNumber toAccountId;
 
     private User userId;
 
