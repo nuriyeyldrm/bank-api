@@ -26,8 +26,7 @@ public class AccountService {
     private final UserService userService;
     private final AccountModifyInformation accountModifyInformation = new AccountModifyInformation();
 
-    private final static String ACCOUNT_NOT_FOUND_MSG = "account with id %d not found";
-    private final static String ACCOUNT_NO_NOT_FOUND_MSG = "account with accountNo %d not found";
+    private final static String ACCOUNT_NOT_FOUND_MSG = "account with accountNo %d not found";
     private final static String SSN_NOT_FOUND_MSG = "account with ssn %s not found";
     private final static String USER_NOT_FOUND_MSG = "user with id %d not found";
 
@@ -65,10 +64,10 @@ public class AccountService {
                 new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
         AccountNumber accountNumber = accountNumberRepository.findById(accountNo)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NO_NOT_FOUND_MSG, accountNo)));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, accountNo)));
 
         AdminAccountDao account = accountRepository.findByAccountNoOrderById(accountNumber)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NO_NOT_FOUND_MSG, accountNo)));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, accountNo)));
 
         User user = userRepository.findById(account.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG,
@@ -97,10 +96,10 @@ public class AccountService {
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
         AccountNumber accountNumber = accountNumberRepository.findById(accountNo)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NO_NOT_FOUND_MSG, accountNo)));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, accountNo)));
 
         return accountRepository.findByAccountNoAndUserIdOrderById(accountNumber, user).orElseThrow(() ->
-                new ResourceNotFoundException(String.format(ACCOUNT_NO_NOT_FOUND_MSG, accountNo)));
+                new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, accountNo)));
     }
 
     public Long add(String ssn, Account account) throws BadRequestException {
@@ -129,12 +128,15 @@ public class AccountService {
         return account.getId();
     }
 
-    public void updateAccount(String ssn, Long id, Account account) throws BadRequestException {
+    public void updateAccount(String ssn, Long accountNo, Account account) throws BadRequestException {
         User user = userRepository.findBySsn(ssn)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
-        Account acc = accountRepository.findByIdAndUserId(id, user)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, id)));
+        AccountNumber accountNumber = accountNumberRepository.findById(accountNo)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, accountNo)));
+
+        Account acc = accountRepository.findByAccountNoAndUserId(accountNumber, user)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, accountNo)));
 
         Timestamp closedDate = null;
         if (account.getAccountStatusType().equals(AccountStatusType.CLOSED))
@@ -151,20 +153,23 @@ public class AccountService {
         accModifyInformationRepository.save(accountModifyInformation);
 
         account.setUserId(user);
-        account.setId(id);
+        account.setId(acc.getId());
         account.setAccModInfId(accountModifyInformation);
-        account.setAccountNo(acc.getAccountNo());
+        account.setAccountNo(accountNumber);
 
         accountRepository.save(account);
     }
 
 
-    public void updateAccountAuth(String ssn, Long id, Account account) throws BadRequestException {
+    public void updateAccountAuth(String ssn, Long accountNo, Account account) throws BadRequestException {
         User admin = userRepository.findBySsn(ssn)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
-        Account acc = accountRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, id)));
+        AccountNumber accountNumber = accountNumberRepository.findById(accountNo)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, accountNo)));
+
+        Account acc = accountRepository.findByAccountNo(accountNumber)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, accountNo)));
 
         User user = userRepository.findById(acc.getUserId().getId())
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG,
@@ -188,13 +193,15 @@ public class AccountService {
         accModifyInformationRepository.save(accountModifyInformation);
 
         account.setUserId(acc.getUserId());
-        account.setId(id);
+        account.setId(acc.getId());
         account.setAccModInfId(accountModifyInformation);
+        account.setAccountNo(accountNumber);
 
         if (rolesAdmin.contains(UserRole.ROLE_MANAGER) || rolesUser.contains(UserRole.ROLE_CUSTOMER))
             accountRepository.save(account);
         else
-            throw new BadRequestException(String.format("You dont have permission to update account with id %d", id));
+            throw new BadRequestException(String.format("You dont have permission to update " +
+                    "account with accountNo %d", accountNo));
     }
 
     public void removeByAccountIdAuth(String ssn, Long accountNo) throws ResourceNotFoundException {
@@ -202,10 +209,10 @@ public class AccountService {
                 new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
         AccountNumber accountNumber = accountNumberRepository.findById(accountNo)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NO_NOT_FOUND_MSG, accountNo)));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, accountNo)));
 
         Account account = accountRepository.findByAccountNo(accountNumber)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NO_NOT_FOUND_MSG, accountNo)));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, accountNo)));
 
         User user = userRepository.findById(account.getUserId().getId()).orElseThrow(() ->
                 new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, account.getUserId().getId())));
@@ -235,10 +242,10 @@ public class AccountService {
                 new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
         AccountNumber accountNumber = accountNumberRepository.findById(accountNo)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NO_NOT_FOUND_MSG, accountNo)));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, accountNo)));
 
         Account account = accountRepository.findByAccountNoAndUserId(accountNumber, user)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NO_NOT_FOUND_MSG, accountNo)));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, accountNo)));
 
         List<Transfer> transfer = transferRepository.findAllByFromAccountId(account);
 

@@ -81,26 +81,26 @@ public class AccountController {
         return new ResponseEntity<>(map, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}/update")
+    @PutMapping("/{accountNo}/update")
     @PreAuthorize("hasRole('CUSTOMER') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
     public ResponseEntity<Map<String, Boolean>> updateAccount(HttpServletRequest request,
-                                                              @PathVariable Long id,
+                                                              @PathVariable Long accountNo,
                                                               @Valid @RequestBody Account account) {
         String ssn = (String) request.getAttribute("ssn");
-        accountService.updateAccount(ssn, id, account);
+        accountService.updateAccount(ssn, accountNo, account);
 
         Map<String, Boolean> map = new HashMap<>();
         map.put("success", true);
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
-    @PutMapping("/{id}/auth")
+    @PutMapping("/{accountNo}/auth")
     @PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
     public ResponseEntity<Map<String, Boolean>> updateAuthAccount(HttpServletRequest request,
-                                                              @PathVariable Long id,
+                                                              @PathVariable Long accountNo,
                                                               @Valid @RequestBody Account account) {
         String ssn = (String) request.getAttribute("ssn");
-        accountService.updateAccountAuth(ssn, id, account);
+        accountService.updateAccountAuth(ssn, accountNo, account);
 
         Map<String, Boolean> map = new HashMap<>();
         map.put("success", true);
