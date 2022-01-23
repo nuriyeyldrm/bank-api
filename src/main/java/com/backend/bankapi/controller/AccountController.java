@@ -81,6 +81,18 @@ public class AccountController {
         return new ResponseEntity<>(map, HttpStatus.CREATED);
     }
 
+    @PostMapping("/{userId}/create")
+    @PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
+    public ResponseEntity<Map<String, Object>> createAccountAuth(@PathVariable Long userId,
+                                                             @Valid @RequestBody Account account) {
+        Long accId = accountService.addAuth(userId, account);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("Account created successfully!", true);
+        map.put("AccountId", accId);
+        return new ResponseEntity<>(map, HttpStatus.CREATED);
+    }
+
     @PutMapping("/{accountNo}/update")
     @PreAuthorize("hasRole('CUSTOMER') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
     public ResponseEntity<Map<String, Boolean>> updateAccount(HttpServletRequest request,

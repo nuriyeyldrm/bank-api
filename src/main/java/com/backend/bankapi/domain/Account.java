@@ -53,7 +53,6 @@ public class Account implements Serializable {
     private AccountType accountType;
 
     @Enumerated(EnumType.STRING)
-    @NotNull(message = "Please choose account status type")
     @Column(nullable = false)
     private AccountStatusType accountStatusType;
 

@@ -75,21 +75,11 @@ public class User implements Serializable {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
-    public User(Long id, String firstName, String lastName, String email, String password, String address,
-                String mobilePhoneNumber, ModifyInformation modInfId, Set<Role> roles) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-        this.address = address;
-        this.mobilePhoneNumber = mobilePhoneNumber;
-        this.modInfId = modInfId;
-        this.roles = roles;
-    }
+    @Column(nullable = false, updatable = false)
+    private Boolean buildIn = false;
 
-    public User(Long id, String ssn, String firstName, String lastName, String email, String password,
-                String address, String mobilePhoneNumber, ModifyInformation modInfId) {
+    public User(Long id, String ssn, String firstName, String lastName, String email, String password, String address,
+                String mobilePhoneNumber, ModifyInformation modInfId, Set<Role> roles) {
         this.id = id;
         this.ssn = ssn;
         this.firstName = firstName;
@@ -99,5 +89,6 @@ public class User implements Serializable {
         this.address = address;
         this.mobilePhoneNumber = mobilePhoneNumber;
         this.modInfId = modInfId;
+        this.roles = roles;
     }
 }

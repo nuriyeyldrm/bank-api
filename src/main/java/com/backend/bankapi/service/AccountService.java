@@ -118,6 +118,7 @@ public class AccountService {
 
         account.setAccModInfId(accountModifyInformation);
         account.setUserId(user);
+        account.setAccountStatusType(AccountStatusType.ACTIVE);
 
         AccountNumber accountNumber = new AccountNumber();
         accountNumberRepository.save(accountNumber);
@@ -125,7 +126,34 @@ public class AccountService {
 
         accountRepository.save(account);
 
-        return account.getId();
+        return account.getAccountNo().getId();
+    }
+
+    public Long addAuth(Long userId, Account account) throws BadRequestException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, userId)));
+
+        String createdBy = accountModifyInformation.setModifiedBy(user.getFirstName(),
+                user.getLastName(), user.getRoles());
+
+        Timestamp createdDate = accountModifyInformation.setDate();
+
+        AccountModifyInformation accountModifyInformation = new AccountModifyInformation(createdBy, createdDate,
+                createdBy, createdDate);
+
+        accModifyInformationRepository.save(accountModifyInformation);
+
+        account.setAccModInfId(accountModifyInformation);
+        account.setUserId(user);
+        account.setAccountStatusType(AccountStatusType.ACTIVE);
+
+        AccountNumber accountNumber = new AccountNumber();
+        accountNumberRepository.save(accountNumber);
+        account.setAccountNo(accountNumber);
+
+        accountRepository.save(account);
+
+        return account.getAccountNo().getId();
     }
 
     public void updateAccount(String ssn, Long accountNo, Account account) throws BadRequestException {
