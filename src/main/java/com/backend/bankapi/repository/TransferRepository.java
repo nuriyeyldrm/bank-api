@@ -27,11 +27,11 @@ public interface TransferRepository extends JpaRepository<Transfer, Long> {
 
     List<TransferAdminDao> findAllByUserIdOrderById(User id) throws ResourceNotFoundException;
 
-    @Query("SELECT t from Transfer t " +
-            "LEFT JOIN FETCH t.userId u " +
-            "LEFT JOIN FETCH u.roles r " +
-            "WHERE t.userId = ?1 and r.name = ?2")
-    List<TransferAdminDao> findAllByUserIdAndRole(User user, UserRole userRole) throws ResourceNotFoundException;
+//    @Query("SELECT t from Transfer t " +
+//            "LEFT JOIN FETCH t.userId u " +
+//            "LEFT JOIN FETCH u.roles r " +
+//            "WHERE t.userId = ?1 and r.name = ?2")
+//    List<TransferAdminDao> findAllByUserIdAndRole(User user, UserRole userRole) throws ResourceNotFoundException;
 
     @Query("SELECT t from Transfer t " +
             "LEFT JOIN FETCH t.userId u " +

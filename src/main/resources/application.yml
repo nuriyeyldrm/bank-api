@@ -28,6 +28,17 @@ spring:
     multipart:
       max-request-size: 2MB
       max-file-size: 2MB
+  data:
+    web:
+      pageable:
+        default-page-size: 5
+  h2:
+    console:
+      enabled: true
+      path: /h2console
+  thymeleaf:
+    cache: false
+
 
 backendapi:
   app:

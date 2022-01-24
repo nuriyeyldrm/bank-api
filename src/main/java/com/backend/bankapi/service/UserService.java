@@ -1,10 +1,12 @@
 package com.backend.bankapi.service;
 
 import com.backend.bankapi.dao.AdminDao;
+import com.backend.bankapi.dao.PagingResponse;
 import com.backend.bankapi.dao.UserDao;
 import com.backend.bankapi.domain.ModifyInformation;
 import com.backend.bankapi.domain.Role;
 import com.backend.bankapi.domain.User;
+import com.backend.bankapi.domain.enumeration.PagingHeaders;
 import com.backend.bankapi.domain.enumeration.UserRole;
 import com.backend.bankapi.exception.AuthException;
 import com.backend.bankapi.exception.BadRequestException;
@@ -12,8 +14,15 @@ import com.backend.bankapi.exception.ConflictException;
 import com.backend.bankapi.exception.ResourceNotFoundException;
 import com.backend.bankapi.repository.ModifyInformationRepository;
 import com.backend.bankapi.repository.RoleRepository;
+import com.backend.bankapi.repository.UserPageableRepository;
 import com.backend.bankapi.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,17 +35,14 @@ import java.util.*;
 public class UserService {
 
     private final UserRepository userRepository;
-
+    private final UserPageableRepository userPageableRepository;
     private final RoleRepository roleRepository;
-
     private final ModifyInformationRepository modifyInfRepository;
-
     private final PasswordEncoder passwordEncoder;
 
     private final ModifyInformation modifyInformation = new ModifyInformation();
 
     private final static String USER_NOT_FOUND_MSG = "user with id %d not found";
-
     private final static String SSN_NOT_FOUND_MSG = "user with ssn %s not found";
 
     public List<User> fetchAllUsers(String ssn){
@@ -72,6 +78,39 @@ public class UserService {
         return  userRepository.findBySsnOrderById(ssn)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
     }
+
+    public PagingResponse get(Specification<User> spec, Pageable pageable) {
+        Page<User> page = userPageableRepository.findAll(spec, pageable);
+        List<User> content = page.getContent();
+        return new PagingResponse(page.getTotalElements(), (long) page.getNumber(),
+                (long) page.getNumberOfElements(), pageable.getOffset(), (long) page.getTotalPages(), content);
+    }
+
+    public List<User> get(Specification<User> spec, Sort sort) {
+        return userPageableRepository.findAll(spec, sort);
+    }
+
+    public PagingResponse get(Specification<User> spec, HttpHeaders headers, Sort sort) {
+        if (isRequestPaged(headers)) {
+            return get(spec, buildPageRequest(headers, sort));
+        } else {
+            List<User> entities = get(spec, sort);
+            return new PagingResponse((long) entities.size(), 0L,
+                    0L, 0L, 0L, entities);
+        }
+    }
+
+    private boolean isRequestPaged(HttpHeaders headers) {
+        return headers.containsKey(PagingHeaders.PAGE_NUMBER.getName()) &&
+                headers.containsKey(PagingHeaders.PAGE_SIZE.getName());
+    }
+
+    private Pageable buildPageRequest(HttpHeaders headers, Sort sort) {
+        int page = Integer.parseInt(Objects.requireNonNull(headers.get(PagingHeaders.PAGE_NUMBER.getName())).get(0));
+        int size = Integer.parseInt(Objects.requireNonNull(headers.get(PagingHeaders.PAGE_SIZE.getName())).get(0));
+        return PageRequest.of(page, size, sort);
+    }
+
 
     public void register(User user) throws BadRequestException {
         if (userRepository.existsBySsn(user.getSsn())) {
