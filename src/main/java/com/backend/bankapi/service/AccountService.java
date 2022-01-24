@@ -266,7 +266,7 @@ public class AccountService {
                 (rolesUser.contains(UserRole.ROLE_CUSTOMER)))) {
 
             if (!transfer.isEmpty())
-                transferRepository.deleteAllByFromAccountId(account);
+                throw new BadRequestException("You cannot delete account because of existing of transfer!");
 
             else {
                 accModifyInformationRepository.deleteById(account.getAccModInfId().getId());
