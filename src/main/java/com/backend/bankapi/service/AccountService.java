@@ -56,7 +56,8 @@ public class AccountService {
         if (rolesAdmin.contains(UserRole.ROLE_MANAGER) || rolesUser.contains(UserRole.ROLE_CUSTOMER))
             return accountRepository.findAllByUserId(user);
         else
-            return accountRepository.findAllByUserIdAndRole(user, UserRole.ROLE_CUSTOMER);
+            throw new BadRequestException(String.format("You dont have permission to access account " +
+                    "with userId %d", userId));
     }
 
     public AdminAccountDao findByAccountNoAuth(String ssn, Long accountNo) throws ResourceNotFoundException {
@@ -136,8 +137,8 @@ public class AccountService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, userId)));
 
-        String createdBy = accountModifyInformation.setModifiedBy(user.getFirstName(),
-                user.getLastName(), user.getRoles());
+        String createdBy = accountModifyInformation.setModifiedBy(admin.getFirstName(),
+                admin.getLastName(), admin.getRoles());
 
         Timestamp createdDate = accountModifyInformation.setDate();
 

@@ -33,11 +33,11 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     List<AdminAccountDao> findAllByUserId(User user) throws ResourceNotFoundException;
 
-    @Query("SELECT a from Account a " +
-            "LEFT JOIN FETCH a.userId u " +
-            "LEFT JOIN FETCH u.roles r " +
-            "WHERE a.userId = ?1 and r.name = ?2")
-    List<AdminAccountDao> findAllByUserIdAndRole(User user, UserRole userRole) throws ResourceNotFoundException;
+//    @Query("SELECT a from Account a " +
+//            "LEFT JOIN FETCH a.userId u " +
+//            "LEFT JOIN FETCH u.roles r " +
+//            "WHERE a.userId = ?1 and r.name = ?2")
+//    List<AdminAccountDao> findAllByUserIdAndRole(User user, UserRole userRole) throws ResourceNotFoundException;
 
     @Query("SELECT a from Account a " +
             "LEFT JOIN FETCH a.userId u " +
