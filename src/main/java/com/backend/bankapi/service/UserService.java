@@ -168,6 +168,10 @@ public class UserService {
             throw new ConflictException("Error: Email is already in use!");
         }
 
+        if (userDetails.getBuildIn()){
+            throw new ConflictException("Error: You dont have permission to update user!");
+        }
+
         String lastModifiedBy = modifyInformation.setModifiedBy(userDao.getFirstName(), userDao.getLastName(),
                 userDetails.getRoles());
 
@@ -199,6 +203,10 @@ public class UserService {
 
         if (ssnExists && !adminDao.getSsn().equals(userDetails.getSsn())){
             throw new ConflictException("Error: Ssn is already in use!");
+        }
+
+        if (userDetails.getBuildIn()){
+            throw new ConflictException("Error: You dont have permission to update user!");
         }
 
         List<UserRole> rolesAdmin = getRoleList(adminDetails);
@@ -246,6 +254,10 @@ public class UserService {
         if (!(BCrypt.hashpw(oldPassword, user.getPassword()).equals(user.getPassword())))
             throw new BadRequestException("password does not match");
 
+        if (user.getBuildIn()){
+            throw new ConflictException("Error: You dont have permission to update password!");
+        }
+
         String hashedPassword = passwordEncoder.encode(newPassword);
         user.setPassword(hashedPassword);
         userRepository.save(user);
@@ -257,6 +269,10 @@ public class UserService {
 
         User user = userRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, id)));
+
+        if (user.getBuildIn()){
+            throw new ConflictException("Error: You dont have permission to delete user!");
+        }
 
         List<UserRole> rolesAdmin = getRoleList(admin);
         List<UserRole> rolesUser = getRoleList(user);
