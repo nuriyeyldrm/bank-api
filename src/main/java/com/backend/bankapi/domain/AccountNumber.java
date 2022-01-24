@@ -20,4 +20,9 @@ public class AccountNumber implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY, generator="accounts_seq")
     @SequenceGenerator(name="accounts_seq", sequenceName="accounts_seq", initialValue = 500000, allocationSize = 100)
     private Long id;
+
+    @Override
+    public String toString() {
+        return "" + id + "";
+    }
 }

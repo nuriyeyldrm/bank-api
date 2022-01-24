@@ -106,7 +106,7 @@ public class TransferService {
 
         Account toAccount = accountRepository.findByAccountNo(transfer.getToAccountId())
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG,
-                        transfer.getToAccountId())));
+                        transfer.getToAccountId().getId())));
 
         if (transfer.getFromAccountId().equals(transfer.getToAccountId())) {
             throw new BadRequestException("Money transfers cannot be made with the same accounts!");
