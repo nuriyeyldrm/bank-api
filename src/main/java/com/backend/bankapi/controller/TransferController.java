@@ -1,7 +1,7 @@
 package com.backend.bankapi.controller;
 
-import com.backend.bankapi.projection.ProjectTransferAdmin;
-import com.backend.bankapi.projection.ProjectTransfer;
+import com.backend.bankapi.dao.TransferAdminDao;
+import com.backend.bankapi.dao.TransferUserDao;
 import com.backend.bankapi.dao.TransferDao;
 import com.backend.bankapi.service.TransferService;
 import lombok.AllArgsConstructor;
@@ -30,44 +30,53 @@ public class TransferController {
 
     @GetMapping("/auth/all")
     @PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
-    public ResponseEntity<List<ProjectTransferAdmin>> getAllTransfers(HttpServletRequest request){
+    public ResponseEntity<List<TransferAdminDao>> getAllTransfers(HttpServletRequest request){
         String ssn = (String) request.getAttribute("ssn");
-        List<ProjectTransferAdmin> transfers = transferService.fetchAllTransfers(ssn);
+        List<TransferAdminDao> transfers = transferService.fetchAllTransfers(ssn);
         return new ResponseEntity<>(transfers, HttpStatus.OK);
     }
 
     @GetMapping("/user/{userId}/auth")
     @PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
-    public ResponseEntity<List<ProjectTransferAdmin>> getTransfersByUserId(HttpServletRequest request,
-                                                                           @PathVariable Long userId){
+    public ResponseEntity<List<TransferAdminDao>> getTransfersByUserId(HttpServletRequest request,
+                                                                       @PathVariable Long userId){
         String ssn = (String) request.getAttribute("ssn");
-        List<ProjectTransferAdmin> transfer = transferService.findByUserId(ssn, userId);
+        List<TransferAdminDao> transfer = transferService.findByUserId(ssn, userId);
         return new ResponseEntity<>(transfer, HttpStatus.OK);
     }
 
     @GetMapping("/{id}/auth")
     @PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
-    public ResponseEntity<ProjectTransferAdmin> getTransferById(HttpServletRequest request,
-                                                                @PathVariable Long id){
+    public ResponseEntity<TransferAdminDao> getTransferById(HttpServletRequest request,
+                                                            @PathVariable Long id){
         String ssn = (String) request.getAttribute("ssn");
-        ProjectTransferAdmin transfer = transferService.findByIdAuth(ssn, id);
+        TransferAdminDao transfer = transferService.findByIdAuth(ssn, id);
         return new ResponseEntity<>(transfer, HttpStatus.OK);
     }
 
     @GetMapping("")
     @PreAuthorize("hasRole('CUSTOMER') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
-    public ResponseEntity<List<ProjectTransfer>> getTransfersBySsn(HttpServletRequest request){
+    public ResponseEntity<List<TransferUserDao>> getTransfersBySsn(HttpServletRequest request){
         String ssn = (String) request.getAttribute("ssn");
-        List<ProjectTransfer> transfers = transferService.findAllBySsn(ssn);
+        List<TransferUserDao> transfers = transferService.findAllBySsn(ssn);
+        return new ResponseEntity<>(transfers, HttpStatus.OK);
+    }
+
+    @GetMapping("/{accountNo}/accountNo")
+    @PreAuthorize("hasRole('CUSTOMER') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
+    public ResponseEntity<List<TransferUserDao>> getTransfersByAccountNo(HttpServletRequest request,
+                                                                         @PathVariable Long accountNo){
+        String ssn = (String) request.getAttribute("ssn");
+        List<TransferUserDao> transfers = transferService.findAllByAccountNo(accountNo, ssn);
         return new ResponseEntity<>(transfers, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('CUSTOMER') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
-    public ResponseEntity<Optional<ProjectTransfer>> getTransferBySsnId(@PathVariable Long id,
+    public ResponseEntity<Optional<TransferUserDao>> getTransferBySsnId(@PathVariable Long id,
                                                         HttpServletRequest request){
         String ssn = (String) request.getAttribute("ssn");
-        Optional<ProjectTransfer> transfer = transferService.findBySsnId(id, ssn);
+        Optional<TransferUserDao> transfer = transferService.findBySsnId(id, ssn);
         return new ResponseEntity<>(transfer, HttpStatus.OK);
     }
 
