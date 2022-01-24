@@ -19,8 +19,6 @@ import java.util.Optional;
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
-    Optional<Account> findByIdAndUserId(Long id, User userId) throws ResourceNotFoundException;
-
     Optional<Account> findByAccountNoAndUserId(AccountNumber accountNo, User userId) throws ResourceNotFoundException;
 
     Optional<Account> findByAccountNo(AccountNumber accountNo) throws ResourceNotFoundException;
