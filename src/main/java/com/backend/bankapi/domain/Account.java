@@ -38,9 +38,8 @@ public class Account implements Serializable {
     @Column(nullable = false, length = 250)
     private String description;
 
-    @NotNull(message = "Please enter balance")
     @Column(nullable = false)
-    private Double balance;
+    private Double balance = 0.0;
 
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Please enter currency code")

@@ -196,14 +196,19 @@ public class AccountService {
         AccountModifyInformation accountModifyInformation = new AccountModifyInformation(acc.getAccModInfId().getId(),
                 lastModifiedBy, lastModifiedDate, closedDate);
 
-        accModifyInformationRepository.save(accountModifyInformation);
-
         account.setUserId(user);
         account.setId(acc.getId());
         account.setAccModInfId(accountModifyInformation);
         account.setAccountNo(accountNumber);
+        account.setBalance(acc.getBalance());
 
-        accountRepository.save(account);
+        if (acc.getAccountStatusType().equals(AccountStatusType.ACTIVE)){
+            accModifyInformationRepository.save(accountModifyInformation);
+            accountRepository.save(account);
+        }
+        else
+            throw new BadRequestException(String.format(
+                    "You dont have active account with accountNo %d to update", accountNo));
     }
 
 
