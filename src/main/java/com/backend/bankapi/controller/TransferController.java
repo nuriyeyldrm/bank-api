@@ -73,13 +73,14 @@ public class TransferController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('CUSTOMER') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
-    public ResponseEntity<Map<String, Boolean>> createTransfer(HttpServletRequest request,
+    public ResponseEntity<Map<String, Object>> createTransfer(HttpServletRequest request,
                                                               @Valid @RequestBody TransferDao transfer) {
         String ssn = (String) request.getAttribute("ssn");
-        transferService.create(ssn, transfer);
+        Double currentBalance = transferService.create(ssn, transfer);
 
-        Map<String, Boolean> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
         map.put("Account created successfully!", true);
+        map.put("currentBalance", currentBalance);
         return new ResponseEntity<>(map, HttpStatus.CREATED);
     }
 }

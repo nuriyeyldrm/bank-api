@@ -1,5 +1,6 @@
 package com.backend.bankapi.service;
 
+import com.backend.bankapi.domain.enumeration.AccountStatusType;
 import com.backend.bankapi.domain.enumeration.UserRole;
 import com.backend.bankapi.projection.ProjectTransferAdmin;
 import com.backend.bankapi.projection.ProjectTransfer;
@@ -96,7 +97,7 @@ public class TransferService {
         return transferRepository.findByIdAndUserId(id, user);
     }
 
-    public void create(String ssn, TransferDao transfer) {
+    public Double create(String ssn, TransferDao transfer) {
         User user = userRepository.findBySsn(ssn)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
@@ -124,6 +125,13 @@ public class TransferService {
             throw new BadRequestException("not enough funds available for transfer");
         }
 
+        if (fromAccount.getAccountStatusType().equals(AccountStatusType.CLOSED) ||
+                fromAccount.getAccountStatusType().equals(AccountStatusType.SUSPENDED) ||
+                toAccount.getAccountStatusType().equals(AccountStatusType.CLOSED) ||
+                toAccount.getAccountStatusType().equals(AccountStatusType.SUSPENDED)){
+            throw new BadRequestException("You can transfer money between active accounts only!");
+        }
+
         final Double newFromBalance = fromAccount.getBalance() - transfer.getTransactionAmount();
 
         final Double newToBalance = toAccount.getBalance() + transfer.getTransactionAmount();
@@ -144,5 +152,7 @@ public class TransferService {
         accountRepository.save(toAccount);
 
         transferRepository.save(transfer1);
+
+        return newFromBalance;
     }
 }
