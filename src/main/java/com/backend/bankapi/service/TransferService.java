@@ -50,6 +50,31 @@ public class TransferService {
             return transferRepository.findAllByRole(UserRole.ROLE_CUSTOMER);
     }
 
+    public List<TransferAdminDao> findAllByAccountNoAuth(Long accountNo, String ssn) throws ResourceNotFoundException {
+        User admin = userRepository.findBySsn(ssn)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
+
+        AccountNumber accountNumber = accountNumberRepository.findById(accountNo)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, accountNo)));
+
+        Account account = accountRepository.findByAccountNo(accountNumber)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, accountNo)));
+
+
+        User user = userRepository.findById(account.getUserId().getId())
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
+
+        List<UserRole> rolesAdmin = userService.getRoleList(admin);
+        List<UserRole> rolesUser = userService.getRoleList(user);
+
+        if (rolesAdmin.contains(UserRole.ROLE_MANAGER) || rolesUser.contains(UserRole.ROLE_CUSTOMER))
+            return transferRepository.findAllByFromAccountIdOrderById(account);
+
+        else
+            throw new BadRequestException(String.format("You dont have permission to access transfer " +
+                    "with accountNo %d", accountNo));
+    }
+
     public List<TransferAdminDao> findByUserId(String ssn, Long userId) throws ResourceNotFoundException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, userId)));

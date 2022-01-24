@@ -43,6 +43,8 @@ public interface TransferRepository extends JpaRepository<Transfer, Long> {
 
     List<TransferUserDao> findAllByUserIdAndFromAccountId(User user, Account account);
 
+    List<TransferAdminDao> findAllByFromAccountIdOrderById(Account id) throws ResourceNotFoundException;
+
     List<Transfer> findAllByFromAccountId(Account id) throws ResourceNotFoundException;
 
 //    void deleteAllByFromAccountId(Account id) throws ResourceNotFoundException;

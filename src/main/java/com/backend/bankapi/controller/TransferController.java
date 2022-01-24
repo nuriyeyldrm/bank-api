@@ -36,6 +36,15 @@ public class TransferController {
         return new ResponseEntity<>(transfers, HttpStatus.OK);
     }
 
+    @GetMapping("/{accountNo}/accountNo/auth")
+    @PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
+    public ResponseEntity<List<TransferAdminDao>> getTransfersByAccountNoAuth(HttpServletRequest request,
+                                                                         @PathVariable Long accountNo){
+        String ssn = (String) request.getAttribute("ssn");
+        List<TransferAdminDao> transfers = transferService.findAllByAccountNoAuth(accountNo, ssn);
+        return new ResponseEntity<>(transfers, HttpStatus.OK);
+    }
+
     @GetMapping("/user/{userId}/auth")
     @PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
     public ResponseEntity<List<TransferAdminDao>> getTransfersByUserId(HttpServletRequest request,
