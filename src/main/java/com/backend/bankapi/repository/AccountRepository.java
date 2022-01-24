@@ -5,6 +5,7 @@ import com.backend.bankapi.dao.AdminAccountDao;
 import com.backend.bankapi.domain.Account;
 import com.backend.bankapi.domain.AccountNumber;
 import com.backend.bankapi.domain.User;
+import com.backend.bankapi.domain.enumeration.AccountStatusType;
 import com.backend.bankapi.domain.enumeration.UserRole;
 import com.backend.bankapi.exception.ResourceNotFoundException;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -43,5 +44,6 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
             "WHERE r.name = ?1")
     List<AdminAccountDao> findAllByRole(UserRole userRole);
 
-    List<AccountDao> findAllByUserIdOrderById(User user) throws ResourceNotFoundException;
+    List<AccountDao> findAllByUserIdAndAccountStatusType(User user, AccountStatusType accountStatusType)
+            throws ResourceNotFoundException;
 }

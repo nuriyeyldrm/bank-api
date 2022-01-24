@@ -89,7 +89,7 @@ public class AccountService {
         User user = userRepository.findBySsn(ssn)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
-        return accountRepository.findAllByUserIdOrderById(user);
+        return accountRepository.findAllByUserIdAndAccountStatusType(user, AccountStatusType.ACTIVE);
     }
 
     public AccountDao findBySsnAccountNo(Long accountNo, String ssn) throws ResourceNotFoundException {
