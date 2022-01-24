@@ -37,7 +37,7 @@ spring:
       enabled: true
       path: /h2console
   thymeleaf:
-    cache: false
+
 
 
 backendapi:
