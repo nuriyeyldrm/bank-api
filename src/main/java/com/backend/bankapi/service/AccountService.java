@@ -99,8 +99,13 @@ public class AccountService {
         AccountNumber accountNumber = accountNumberRepository.findById(accountNo)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, accountNo)));
 
-        return accountRepository.findByAccountNoAndUserIdOrderById(accountNumber, user).orElseThrow(() ->
+        AccountDao accountDao = accountRepository.findByAccountNoAndUserIdOrderById(accountNumber, user).orElseThrow(() ->
                 new ResourceNotFoundException(String.format(ACCOUNT_NOT_FOUND_MSG, accountNo)));
+
+        if (accountDao.getAccountStatusType().equals(AccountStatusType.ACTIVE))
+            return accountDao;
+        else
+            throw new BadRequestException(String.format("You dont have active account with accountNo %d", accountNo));
     }
 
     public Long add(String ssn, Account account) throws BadRequestException {
