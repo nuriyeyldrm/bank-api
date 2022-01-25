@@ -12,6 +12,7 @@ import com.backend.bankapi.exception.AuthException;
 import com.backend.bankapi.exception.BadRequestException;
 import com.backend.bankapi.exception.ConflictException;
 import com.backend.bankapi.exception.ResourceNotFoundException;
+import com.backend.bankapi.projection.ProjectAdmin;
 import com.backend.bankapi.projection.ProjectUser;
 import com.backend.bankapi.repository.ModifyInformationRepository;
 import com.backend.bankapi.repository.RoleRepository;
@@ -46,21 +47,24 @@ public class UserService {
     private final static String USER_NOT_FOUND_MSG = "user with id %d not found";
     private final static String SSN_NOT_FOUND_MSG = "user with ssn %s not found";
 
-    public List<User> fetchAllUsers(String ssn){
+    public List<ProjectAdmin> fetchAllUsers(String ssn){
         User admin = userRepository.findBySsn(ssn) .orElseThrow(() ->
                 new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
         List<UserRole> rolesAdmin = getRoleList(admin);
 
         if (rolesAdmin.contains(UserRole.ROLE_MANAGER))
-            return userRepository.findAll();
+            return userRepository.findAllBy();
         else
             return userRepository.findAllByRole(UserRole.ROLE_CUSTOMER);
     }
 
-    public User findById(String ssn, Long id) throws ResourceNotFoundException {
+    public ProjectAdmin findById(String ssn, Long id) throws ResourceNotFoundException {
         User admin = userRepository.findBySsn(ssn) .orElseThrow(() ->
                 new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
+
+        ProjectAdmin projectUser = userRepository.findByIdOrderById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, id)));
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, id)));
@@ -69,7 +73,7 @@ public class UserService {
         List<UserRole> rolesUser = getRoleList(user);
 
         if (rolesAdmin.contains(UserRole.ROLE_MANAGER) || rolesUser.contains(UserRole.ROLE_CUSTOMER))
-            return user;
+            return projectUser;
 
         else
             throw new BadRequestException(String.format("You dont have permission to access user with id %d", id));

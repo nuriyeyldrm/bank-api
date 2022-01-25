@@ -5,6 +5,7 @@ import com.backend.bankapi.dao.PagingResponse;
 import com.backend.bankapi.dao.UserDao;
 import com.backend.bankapi.domain.User;
 import com.backend.bankapi.domain.enumeration.PagingHeaders;
+import com.backend.bankapi.projection.ProjectAdmin;
 import com.backend.bankapi.projection.ProjectUser;
 import com.backend.bankapi.security.jwt.JwtUtils;
 import com.backend.bankapi.service.UserService;
@@ -51,18 +52,18 @@ public class UserController {
 
     @GetMapping("/user/auth/all")
     @PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
-    public ResponseEntity<List<User>> getAllUsers(HttpServletRequest request){
+    public ResponseEntity<List<ProjectAdmin>> getAllUsers(HttpServletRequest request){
         String ssn = (String) request.getAttribute("ssn");
-        List<User> users = userService.fetchAllUsers(ssn);
+        List<ProjectAdmin> users = userService.fetchAllUsers(ssn);
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @GetMapping("/user/{id}/auth")
     @PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
-    public ResponseEntity<User> getUserById(HttpServletRequest request,
+    public ResponseEntity<ProjectAdmin> getUserById(HttpServletRequest request,
                                             @PathVariable Long id){
         String ssn = (String) request.getAttribute("ssn");
-        User user = userService.findById(ssn, id);
+        ProjectAdmin user = userService.findById(ssn, id);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 

@@ -6,6 +6,7 @@ import com.backend.bankapi.domain.enumeration.UserRole;
 import com.backend.bankapi.exception.BadRequestException;
 import com.backend.bankapi.exception.ConflictException;
 import com.backend.bankapi.exception.ResourceNotFoundException;
+import com.backend.bankapi.projection.ProjectAdmin;
 import com.backend.bankapi.projection.ProjectUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -24,8 +25,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findBySsn(String ssn) throws ResourceNotFoundException;
 
+    Optional<ProjectAdmin> findByIdOrderById(Long id) throws ResourceNotFoundException;
+
     @Query("SELECT u from User u LEFT JOIN FETCH u.roles r WHERE r.name = ?1")
-    List<User> findAllByRole(UserRole userRole);
+    List<ProjectAdmin> findAllByRole(UserRole userRole);
+
+    List<ProjectAdmin> findAllBy();
 
     Boolean existsBySsn(String ssn) throws ConflictException;
 
