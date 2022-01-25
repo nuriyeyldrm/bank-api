@@ -12,6 +12,7 @@ import com.backend.bankapi.exception.AuthException;
 import com.backend.bankapi.exception.BadRequestException;
 import com.backend.bankapi.exception.ConflictException;
 import com.backend.bankapi.exception.ResourceNotFoundException;
+import com.backend.bankapi.projection.ProjectUser;
 import com.backend.bankapi.repository.ModifyInformationRepository;
 import com.backend.bankapi.repository.RoleRepository;
 import com.backend.bankapi.repository.UserPageableRepository;
@@ -74,7 +75,7 @@ public class UserService {
             throw new BadRequestException(String.format("You dont have permission to access user with id %d", id));
     }
 
-    public UserDao findBySsn(String ssn) throws ResourceNotFoundException {
+    public ProjectUser findBySsn(String ssn) throws ResourceNotFoundException {
         return  userRepository.findBySsnOrderById(ssn)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
     }
@@ -132,7 +133,7 @@ public class UserService {
 
         user.setRoles(roles);
 
-        String createdBy = modifyInformation.setModifiedBy(user.getFirstName(), user.getLastName(), user.getRoles());
+        String createdBy = modifyInformation.setModifiedBy(user.getFirstName(), user.getLastName(), user.getRole());
 
         Timestamp createdDate = modifyInformation.setDate();
 
@@ -173,7 +174,7 @@ public class UserService {
         }
 
         String lastModifiedBy = modifyInformation.setModifiedBy(userDao.getFirstName(), userDao.getLastName(),
-                userDetails.getRoles());
+                userDetails.getRole());
 
         Timestamp lastModifiedDate = modifyInformation.setDate();
 
@@ -220,7 +221,7 @@ public class UserService {
         Set<Role> roles = addRoles(userRoles);
 
         String lastModifiedBy = modifyInformation.setModifiedBy(adminDetails.getFirstName(),
-                adminDetails.getLastName(), adminDetails.getRoles());
+                adminDetails.getLastName(), adminDetails.getRole());
 
         Timestamp lastModifiedDate = modifyInformation.setDate();
 
@@ -239,7 +240,7 @@ public class UserService {
         else if (rolesUser.contains(UserRole.ROLE_CUSTOMER)){
             user = new User(id, adminDao.getSsn(), adminDao.getFirstName(), adminDao.getLastName(),
                     adminDao.getEmail(), adminDao.getPassword(), adminDao.getAddress(), adminDao.getMobilePhoneNumber(),
-                    userDetails.getModInfId(), userDetails.getRoles());
+                    userDetails.getModInfId(), userDetails.getRole());
         }
         else
             throw new BadRequestException(String.format("You dont have permission to update user with id %d", id));
@@ -287,7 +288,7 @@ public class UserService {
 
     public List<UserRole> getRoleList(User user) {
         List<UserRole> roles = new ArrayList<>();
-        for (Role role: user.getRoles()){
+        for (Role role: user.getRole()){
             roles.add(role.getName());
         }
         return roles;

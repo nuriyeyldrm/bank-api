@@ -6,6 +6,7 @@ import com.backend.bankapi.domain.enumeration.UserRole;
 import com.backend.bankapi.exception.BadRequestException;
 import com.backend.bankapi.exception.ConflictException;
 import com.backend.bankapi.exception.ResourceNotFoundException;
+import com.backend.bankapi.projection.ProjectUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -19,7 +20,7 @@ import java.util.Optional;
 @Transactional
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<UserDao> findBySsnOrderById(String ssn) throws ResourceNotFoundException;
+    Optional<ProjectUser> findBySsnOrderById(String ssn) throws ResourceNotFoundException;
 
     Optional<User> findBySsn(String ssn) throws ResourceNotFoundException;
 

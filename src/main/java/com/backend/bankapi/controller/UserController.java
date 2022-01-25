@@ -5,6 +5,7 @@ import com.backend.bankapi.dao.PagingResponse;
 import com.backend.bankapi.dao.UserDao;
 import com.backend.bankapi.domain.User;
 import com.backend.bankapi.domain.enumeration.PagingHeaders;
+import com.backend.bankapi.projection.ProjectUser;
 import com.backend.bankapi.security.jwt.JwtUtils;
 import com.backend.bankapi.service.UserService;
 import lombok.AllArgsConstructor;
@@ -87,9 +88,9 @@ public class UserController {
 
     @GetMapping("/user")
     @PreAuthorize("hasRole('CUSTOMER') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
-    public ResponseEntity<UserDao> getUserBySsn(HttpServletRequest request){
+    public ResponseEntity<ProjectUser> getUserBySsn(HttpServletRequest request){
         String ssn = (String) request.getAttribute("ssn");
-        UserDao userDao = userService.findBySsn(ssn);
+        ProjectUser userDao = userService.findBySsn(ssn);
         return new ResponseEntity<>(userDao, HttpStatus.OK);
     }
 

@@ -113,7 +113,7 @@ public class AccountService {
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(SSN_NOT_FOUND_MSG, ssn)));
 
         String createdBy = accountModifyInformation.setModifiedBy(user.getFirstName(),
-                user.getLastName(), user.getRoles());
+                user.getLastName(), user.getRole());
 
         Timestamp createdDate = accountModifyInformation.setDate();
 
@@ -143,7 +143,7 @@ public class AccountService {
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, userId)));
 
         String createdBy = accountModifyInformation.setModifiedBy(admin.getFirstName(),
-                admin.getLastName(), admin.getRoles());
+                admin.getLastName(), admin.getRole());
 
         Timestamp createdDate = accountModifyInformation.setDate();
 
@@ -189,7 +189,7 @@ public class AccountService {
             closedDate = accountModifyInformation.setDate();
 
         String lastModifiedBy = accountModifyInformation.setModifiedBy(user.getFirstName(), user.getLastName(),
-                user.getRoles());
+                user.getRole());
 
         Timestamp lastModifiedDate = accountModifyInformation.setDate();
 
@@ -234,7 +234,7 @@ public class AccountService {
             closedDate = accountModifyInformation.setDate();
 
         String lastModifiedBy = accountModifyInformation.setModifiedBy(admin.getFirstName(), admin.getLastName(),
-                admin.getRoles());
+                admin.getRole());
 
         Timestamp lastModifiedDate = accountModifyInformation.setDate();
 
