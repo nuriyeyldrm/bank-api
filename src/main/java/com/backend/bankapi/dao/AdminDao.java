@@ -45,5 +45,5 @@ public class AdminDao {
     @NotNull(message = "Please enter your phone number")
     private String mobilePhoneNumber;
 
-    private Set<String> role;
+    private Set<String> roles;
 }
