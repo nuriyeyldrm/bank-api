@@ -217,9 +217,14 @@ public class UserService {
         List<UserRole> rolesAdmin = getRoleList(adminDetails);
         List<UserRole> rolesUser = getRoleList(userDetails);
 
-        String encodedPassword = passwordEncoder.encode(adminDao.getPassword());
+        if (adminDao.getPassword() == null) {
+            adminDao.setPassword(userDetails.getPassword());
+        }
 
-        adminDao.setPassword(encodedPassword);
+        else {
+            String encodedPassword = passwordEncoder.encode(adminDao.getPassword());
+            adminDao.setPassword(encodedPassword);
+        }
 
         Set<String> userRoles = adminDao.getRole();
         Set<Role> roles = addRoles(userRoles);

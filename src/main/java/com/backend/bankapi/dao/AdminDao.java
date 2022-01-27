@@ -33,7 +33,6 @@ public class AdminDao {
     private String email;
 
     @Size(min = 4, max = 60, message = "Please enter min 4 characters")
-    @NotNull(message = "Please enter your password")
     private String password;
 
     @Size(max = 250)
