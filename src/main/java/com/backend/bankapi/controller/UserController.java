@@ -1,8 +1,6 @@
 package com.backend.bankapi.controller;
 
-import com.backend.bankapi.dao.AdminDao;
-import com.backend.bankapi.dao.PagingResponse;
-import com.backend.bankapi.dao.UserDao;
+import com.backend.bankapi.dao.*;
 import com.backend.bankapi.domain.User;
 import com.backend.bankapi.domain.enumeration.PagingHeaders;
 import com.backend.bankapi.projection.ProjectAdmin;
@@ -71,7 +69,7 @@ public class UserController {
     @GetMapping(value = "/user/auth/search")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
-    public ResponseEntity<List<User>> get(
+    public ResponseEntity<List<SearchDao>> get(
             @And({
                     @Spec(path = "id", params = "id", spec = Equal.class),
                     @Spec(path = "ssn", params = "ssn", spec = Equal.class),
@@ -84,7 +82,9 @@ public class UserController {
             Sort sort,
             @RequestHeader HttpHeaders headers) {
         final PagingResponse response = userService.get(spec, headers, sort);
-        return new ResponseEntity<>(response.getElements(), returnHttpHeaders(response), HttpStatus.OK);
+        final PagingResponseAdmin responseAdmin = userService.searchAll(response);
+
+        return new ResponseEntity<>(responseAdmin.getElements(), returnHttpHeaders(responseAdmin), HttpStatus.OK);
     }
 
     @GetMapping("/user")
@@ -168,7 +168,7 @@ public class UserController {
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
-    public HttpHeaders returnHttpHeaders(PagingResponse response) {
+    public HttpHeaders returnHttpHeaders(PagingResponseAdmin response) {
         HttpHeaders headers = new HttpHeaders();
         headers.set(PagingHeaders.COUNT.getName(), String.valueOf(response.getCount()));
         headers.set(PagingHeaders.PAGE_SIZE.getName(), String.valueOf(response.getPageSize()));

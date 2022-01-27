@@ -1,8 +1,6 @@
 package com.backend.bankapi.service;
 
-import com.backend.bankapi.dao.AdminDao;
-import com.backend.bankapi.dao.PagingResponse;
-import com.backend.bankapi.dao.UserDao;
+import com.backend.bankapi.dao.*;
 import com.backend.bankapi.domain.ModifyInformation;
 import com.backend.bankapi.domain.Role;
 import com.backend.bankapi.domain.User;
@@ -103,6 +101,21 @@ public class UserService {
             return new PagingResponse((long) entities.size(), 0L,
                     0L, 0L, 0L, entities);
         }
+    }
+
+    public PagingResponseAdmin searchAll(PagingResponse pagingResponse) {
+        List<User> elements = pagingResponse.getElements();
+
+        List<SearchDao> search = new ArrayList<>();
+
+        for (User u : elements){
+            search.add(new SearchDao(u));
+        }
+
+        PagingResponseAdmin pagingResponseAdmin = new PagingResponseAdmin(pagingResponse.getCount(),
+                pagingResponse.getPageNumber(), pagingResponse.getPageSize(), pagingResponse.getPageOffset(),
+                pagingResponse.getPageTotal(), search);
+        return pagingResponseAdmin;
     }
 
     private boolean isRequestPaged(HttpHeaders headers) {
