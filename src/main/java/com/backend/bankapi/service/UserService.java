@@ -112,10 +112,9 @@ public class UserService {
             search.add(new SearchDao(u));
         }
 
-        PagingResponseAdmin pagingResponseAdmin = new PagingResponseAdmin(pagingResponse.getCount(),
+        return new PagingResponseAdmin(pagingResponse.getCount(),
                 pagingResponse.getPageNumber(), pagingResponse.getPageSize(), pagingResponse.getPageOffset(),
                 pagingResponse.getPageTotal(), search);
-        return pagingResponseAdmin;
     }
 
     private boolean isRequestPaged(HttpHeaders headers) {
